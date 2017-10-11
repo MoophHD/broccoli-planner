@@ -1,0 +1,14 @@
+*{
+  box-sizing: border-box;
+}
+
+body {
+  line-height: 1.45;
+  font-size: 14px;
+}
+
+.app {
+  padding-left: 10px;
+  padding-right: 10px;
+  font-family: 'Roboto', sans-serif;
+}
