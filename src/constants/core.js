@@ -1,0 +1,1 @@
+export const ADD_CHUNCK = 'ADD_CHUNCK';
