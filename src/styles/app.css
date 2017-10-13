@@ -12,6 +12,8 @@ body {
 }
 
 .chunck {
+  background-color: #f1f1f1;
+  margin-bottom: 25px;
   padding: 10px;
 }
 
@@ -22,16 +24,20 @@ body {
 
 .chunckContainer {
   display: inline-block;
-  padding: 15px 25px;
+  vertical-align: top;
+  padding: 5px 25px;
   width: 60%;
 }
 
 .controller {
   display: inline-block;
+  position: relative;
   width: 40%;
+  padding-top: 5px;
 }
 
 .ctrInput {
+  margin-top: 15px;
   font-family: 'Roboto', sans-serif;
   border: none;
   resize: none;
@@ -43,3 +49,46 @@ body {
   font-size: 1.25em;
   color: #333;
 }
+
+.dtInput {
+  display: inline-block;
+  width: 110px;
+  margin-right: 25px;
+}
+
+
+
+.dtInput span {
+  display: inline;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.dtInput:last-of-type {
+  text-align: right;
+  position: absolute;
+  margin-right: 0;
+  right: 0;
+}
+
+.dtInput:last-of-type input {
+  width: 40px;
+}
+
+.dtInput input {
+  text-align: justify;
+  width: 65%;
+  font-size: 1em;
+  font-family: 'Roboto', sans-serif;
+  border: none;
+  background-color: #f1f1f1;
+  padding: 5px 10px;
+  transition:  all ease .2s;
+}
+
+.dtInput input:focus {
+  background: crimson;
+  color: white;
+  outline: none;
+} 
+

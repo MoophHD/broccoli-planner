@@ -1,5 +1,5 @@
 /* eslint-disable */
-import {ADD_CHUNCK} from '../constants/core'
+import {ADD_CHUNCK, CLEAR_CHUNCKS} from '../constants/core'
 let initialState = {
     chuncksByID: {},
     chuncksIDs: []
@@ -15,6 +15,8 @@ export default function index(state=initialState, action) {
                      name: action.name,
                      from: action.from,
                      to: action.to}} } 
+        case CLEAR_CHUNCKS:
+            return {...state, chuncksByID:{}, chuncksIDs:[]}
         default:
             return state
     }
