@@ -48,6 +48,7 @@ body {
   min-height: 500px;
   font-size: 1.25em;
   color: #333;
+  /* outline-color: crimson; */
 }
 
 .dtInput {
@@ -69,14 +70,15 @@ body {
   position: absolute;
   margin-right: 0;
   right: 0;
+  width: 120px;
 }
 
 .dtInput:last-of-type input {
-  width: 40px;
+  width: 80px;
 }
 
 .dtInput input {
-  text-align: justify;
+  text-align: center;
   width: 65%;
   font-size: 1em;
   font-family: 'Roboto', sans-serif;
@@ -87,8 +89,14 @@ body {
 }
 
 .dtInput input:focus {
+  text-align: justify;
   background: crimson;
   color: white;
   outline: none;
 } 
+
+.dtInput.total input {
+  text-align: center;
+} 
+
 

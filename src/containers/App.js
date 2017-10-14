@@ -26,7 +26,6 @@ class App extends Component {
                 />)
     })
 
-
     return (<div>
       <Controller />
       <div className="chunckContainer">
