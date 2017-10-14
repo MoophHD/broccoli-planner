@@ -12,6 +12,7 @@ body {
 }
 
 .chunck {
+  transition:  all ease .2s;
   background-color: #f1f1f1;
   margin-bottom: 25px;
   padding: 10px;
@@ -53,11 +54,9 @@ body {
 
 .dtInput {
   display: inline-block;
-  width: 110px;
+  width: 135px;
   margin-right: 25px;
 }
-
-
 
 .dtInput span {
   display: inline;

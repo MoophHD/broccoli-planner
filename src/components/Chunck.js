@@ -19,28 +19,24 @@ class Chunck extends Component {
     }
 
     checkActive() {
-        if (this.active) {
-            if (nowDur > toDur) {
-                clearInterval(this.intervalId);
-                this.resetStyles();
-                return;
-            }
-        }
 
         let now = moment();
-        let nowDur = moment.duration({h:now.get("hours"), m:now.get("minutes")}).asSeconds();
+        let nowDur = moment.duration({h:now.get("hours"), m:now.get("minutes"), s:now.get("seconds")}).asSeconds();
         let from = moment(this.props.from, "h:mm A");
         let to = moment(this.props.to, "h:mm A");
         
         let fromDur = moment.duration({h:from.get("hours"), m:from.get("minutes")}).asSeconds();
         let toDur = moment.duration({h:to.get("hours"), m:to.get("minutes")}).asSeconds();
+
+        if (this.active) {
+            if (nowDur >= toDur) {
+                clearInterval(this.intervalId);
+                this.resetStyles();
+                return;
+            }
+        }
         
-        console.log(fromDur);
-        console.log(nowDur);
-        console.log(toDur);
-        console.log(nowDur < toDur)
         if ( nowDur > fromDur && nowDur < toDur) {
-            console.log('tada');
             this.setActiveStyles();
         } else if (nowDur > toDur) {
             clearInterval(this.intervalId);

@@ -87,8 +87,10 @@ class Controller extends Component {
             chMins += parseFloat(current.tm);
         });
         chMins = Math.round(chMins*1000)/1000;
-        let breakMins =( diff - chMins ) / chCount;
-        console.log(breakMins);
+        let freeTm = diff - chMins;
+        let breakMins = freeTm/ chCount; // eslint-disable-line
+        document.querySelector('.dtInput.total input').value = `${~~(freeTm/60)}h${~~(freeTm%60)}m`;
+        
 
         queueIds.forEach((id) => {
             let current = queueById[id];
@@ -165,34 +167,47 @@ class Controller extends Component {
     formatInputDt(val) {
         let splRg= /((\ \:\ )|\:|\-|\ )/g;
         let now = moment();
-        let dt,
-            formDt;
+        let dt = [],
+            formDt,
+            result;
+
+        let tmPeriod = (now.get("hours") < 12) ? "AM" : "PM";
+
+        if (/AM/i.test(val)) {
+            tmPeriod = "AM";
+        } else if (/PM/i.test(val)) {
+            tmPeriod = "PM";
+        }
 
         if (splRg.test(val)) {
             dt = val.split(val.match(splRg)[0]);
             if (dt[1].length < 2) {
                 dt[1] = 60 * dt[1];
             }
+            
+        } else {
+            if (/\./.test(val)) {
+                dt = val.split('.');
 
-            now.hour(dt[0]);
-            now.minute(dt[1]);
+                if (dt[1].length < 2) {
+                    dt[1] = 60 * (dt[1]/10);
+                }
+
+            } else {
+                dt[0] = val;
+                dt[1] = 0;
+            }
+        }
+            result = moment(`${dt[0]}:${dt[1]} ${tmPeriod}`, "h:mm A").format('HH:mm').split(':');
+            now.hour(result[0]);
+            now.minute(result[1]);
             now.second(0);
 
             dt[0] = this.checkAndFixZeros(dt[0]);
             dt[1] = this.checkAndFixZeros(dt[1]);
+
+            formDt = `${dt.join(' : ')}${/AM|PM/i.test(val) ? "" :" " + tmPeriod}`;
             
-
-            formDt = dt.join(' : ');
-        } else {
-            now.hour(val);
-            now.minute(0);
-            now.second(0);
-
-            val = this.checkAndFixZeros(val);
-            
-            formDt = `${val} : 00`;
-        }
-
         return {vl: now, formDt: formDt}
     }
 
@@ -212,7 +227,7 @@ class Controller extends Component {
                     to:<input onBlur={this.handleInputSubmit} onKeyPress={(e) => this.checkInputKeyDown(e)} data-type="to"></input>
                 </div>
                 <div className="dtInput total">
-                    total:<input readOnly></input>
+                    free:<input readOnly></input>
                 </div>
                 <textarea ref={(el) => this.input = el} className="ctrInput"/>
             </div>
