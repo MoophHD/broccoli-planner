@@ -7,14 +7,20 @@ import * as npActions from '../actions/npActions'
 import Chunck from '../components/Chunck'
 import Controller from './Controller'
 
+import $ from 'jquery'
+import 'jquery-ui/ui/widgets/sortable'
 
 class App extends Component {
-  componentWillReceiveProps(nextProps) {
+  componentDidMount() {
+    $( "#sortable" ).sortable({
+      revert: true,
+      axis: "y"
+		});
   }
 
   render() {
     const {actions} = this.props;
-    const { byID, ids} = this.props;
+    const { byID, ids, order} = this.props;
 
     let chuncks = ids.map((id, ind) => {
       let curr = byID[id];
@@ -23,12 +29,18 @@ class App extends Component {
                 name={curr.name}
                 from={curr.from}
                 to={curr.to}
+                order={order[ind]}
                 />)
     })
+    
+    chuncks.sort((ch1, ch2) => {
+      return ch1.props.order > ch2.props.order ? 1 : -1;
+    })
 
-    return (<div>
-      <Controller />
-      <div className="chunckContainer">
+    return (
+      <div >
+        <Controller />
+      <div id="sortable" className="chunckContainer">
         {chuncks}
       </div>
     </div>)
@@ -37,7 +49,8 @@ class App extends Component {
 function mapStateToProps(state) {
   return {
     byID: state.chuncksByID,
-    ids: state.chuncksIDs
+    ids: state.chuncksIDs,
+    order: state.chunckOrder
   }
 }
 

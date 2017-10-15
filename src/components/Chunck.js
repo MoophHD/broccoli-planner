@@ -1,12 +1,33 @@
-
+/* eslint-disable */
 import React, {Component} from 'react'
 import moment from 'moment' // eslint-disable-line 
+import $ from 'jquery'
+import 'jquery-ui/ui/widgets/draggable' // eslint-disable-line 
+import 'jquery-ui/ui/widgets/sortable'
+
 
 class Chunck extends Component {
     constructor(props) {
         super(props);
         this.setStuff = this.setStuff.bind(this);
     }
+
+    componentDidMount() {
+        // this.$resizer.draggable({
+        //     connectToSortable: "#sortable",
+		// 	helper: "clone",
+		// 	revert: "invalid",
+        //     axis: 'x',
+        //     drag: (e, ui) => this.handleDrag(ui) // eslint-disable-line    
+        // });
+
+    
+      }
+
+    handleDrag(ui) { //eslint-disable-line
+        // console.log(ui);
+    }
+
     setStuff(container) {
         if (container == null) return;
 
@@ -16,6 +37,11 @@ class Chunck extends Component {
         this.active = false;
         this.checkActive();
         this.intervalId = setInterval(() => this.checkActive(), 10000)
+
+        // this.$container = $(container);
+        // this.$container.draggable({axis: 'y',
+        //     drag: (e, ui) => this.handleDrag(ui)      
+        // });
     }
 
     checkActive() {
@@ -56,13 +82,15 @@ class Chunck extends Component {
 
 
     render() {
-        let {from, to, name} = this.props;
-
+        let {from, to, name, order} = this.props;
+        from = from.format('h:mm A');
+        to = to.format('h:mm A');
         return (
             <div ref={this.setStuff} className="chunck">
                 <div>{from}</div>
                 <div>{to}</div>
                 <div>{name}</div>
+                <div>{order}</div>
             </div>
         )
     }

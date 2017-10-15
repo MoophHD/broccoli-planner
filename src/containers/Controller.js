@@ -1,16 +1,15 @@
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
-import * as npActions from '../actions/npActions'
 import moment from 'moment';
-
-
+import * as npActions from '../actions/npActions'
 
 class Controller extends Component {
     constructor(props) {
         super(props);
 
         this.handleInputSubmit = this.handleInputSubmit.bind(this);
+        this.handleEnter = this.handleEnter.bind(this);
     }
 
     componentDidMount() {
@@ -24,19 +23,26 @@ class Controller extends Component {
         
 
         this.input.spellcheck = false;
-        this.input.addEventListener("keypress",(e) => this.handleEnter(e))
+        this.input.addEventListener("keyup",this.handleEnter);
         this.input.addEventListener("blur",() => this.grabChuncks())
     }
 
-    handleEnter(e) {
-        if (e.keyCode == 13) {
-            this.grabChuncks();
+    handleEnter(e) { //eslint-disable-line
+        if (e.key == "Enter" && (!this.dtFrom || !this.dtTo)) {
+            e.preventDefault();
+            this.focusInput();
+            return false;
         }
+
+        this.grabChuncks();
     }
 
-    grabChuncks() {
+    grabChuncks(pressure=false) { //eslint-disable-line
         let val = this.input.value;
-        if (val == this.lastValue) return;
+        
+        if (val == this.lastValue && !pressure) return;
+        
+
 
         this.clearQueue();
         let tm,
@@ -46,7 +52,6 @@ class Controller extends Component {
             id = this.id,
             queueIds = this.queueIds,
             queueById = this.queueById;
-            
         inp.forEach(function(ln) {
             if (this.tmReg.test(ln)) {
                 name = ln.match(this.nameReg) ? ln.match(this.nameReg)[0] : 'None';
@@ -59,7 +64,7 @@ class Controller extends Component {
             }
         }, this);
 
-        this.rebuild().then(() => {this.lastValue = val});
+        this.rebuild().then(() => {this.lastValue = val}, null);
         
 
     }
@@ -94,11 +99,8 @@ class Controller extends Component {
 
         queueIds.forEach((id) => {
             let current = queueById[id];
-            // if (queueIds.indexOf(id) != 0) {
-            //     lastDt.add(breakMins, 'minutes');
-            // }
-
-            addChunck(current.name, lastDt.format('h:mm A'), lastDt.add(current.tm, 'minutes').format('h:mm A'));
+            addChunck(current.name, lastDt.clone(), lastDt.clone().add(current.tm, 'minutes'));
+            lastDt.add(current.tm, 'minutes');
         })
 
         return new Promise((res) => res())
@@ -156,12 +158,20 @@ class Controller extends Component {
             totalInp.value=this.dtTo.diff(this.dtFrom, "hours") + 'h'+ this.dtTo.diff(this.dtFrom, "minutes")%60+ "m";
         }
 
+        this.grabChuncks(true);
+
     }
 
     checkInputKeyDown(e) {
         if (e.key != "Enter") return;
-    
+        
         this.handleInputSubmit(e);
+
+        if (e.target.dataset.type == "from") {
+            document.querySelector('[data-type=to]').focus();
+        } else if (e.target.dataset.type == "to") {
+            this.input.focus();
+        }
     }
 
     formatInputDt(val) {
@@ -179,24 +189,30 @@ class Controller extends Component {
             tmPeriod = "PM";
         }
 
+        let tmPeriodMatch = val.match(/AM|PM/i) ? val.match(/AM|PM/i)[0] : null;
+
         if (splRg.test(val)) {
             dt = val.split(val.match(splRg)[0]);
-            if (dt[1].length < 2) {
-                dt[1] = 60 * dt[1];
+
+            if (tmPeriod) dt[1] = dt[1].split(/\ ?AM|\ ?PM/i).join("");
+
+            if (/\./.test(dt[0])) {
+                dt = this.normilizeDotDate(dt[0]);
             }
-            
+
+            dt[1] = this.checkAndFixZeros(dt[1]);
+
         } else {
-            if (/\./.test(val)) {
-                dt = val.split('.');
-
-                if (dt[1].length < 2) {
-                    dt[1] = 60 * (dt[1]/10);
-                }
-
-            } else {
-                dt[0] = val;
-                dt[1] = 0;
+            if (tmPeriodMatch) {
+                val = val.split(val).join("");
             }
+
+            if (/\./.test(val)) {
+                dt = this.normilizeDotDate(val);
+                } else {
+                    dt[0] = val;
+                    dt[1] = 0;
+                }
         }
             result = moment(`${dt[0]}:${dt[1]} ${tmPeriod}`, "h:mm A").format('HH:mm').split(':');
             now.hour(result[0]);
@@ -205,10 +221,19 @@ class Controller extends Component {
 
             dt[0] = this.checkAndFixZeros(dt[0]);
             dt[1] = this.checkAndFixZeros(dt[1]);
-
-            formDt = `${dt.join(' : ')}${/AM|PM/i.test(val) ? "" :" " + tmPeriod}`;
+            formDt = `${dt.join(' : ')}${" " + tmPeriod}`;
             
         return {vl: now, formDt: formDt}
+    }
+
+    normilizeDotDate(dt) {
+        dt = dt.split('.');
+        
+        if (dt[1].length < 2) {
+            dt[1] = (60 * (dt[1]/10)).toString();
+        }
+
+        return dt;
     }
 
     checkAndFixZeros(slice) {
@@ -216,18 +241,17 @@ class Controller extends Component {
 
         return slice < 10 ? '0' + slice : slice.toString();
     }
-
     render() {
         return(
             <div className="controller">
                 <div className="dtInput">
-                    from:<input onBlur={this.handleInputSubmit} onKeyPress={(e) => this.checkInputKeyDown(e)} data-type="from"></input>
+                    from:<input autoFocus={true} onFocus={(e) => e.target.select()} onBlur={this.handleInputSubmit} onKeyPress={(e) => this.checkInputKeyDown(e)} data-type="from"></input>
                 </div>
                 <div className="dtInput">
-                    to:<input onBlur={this.handleInputSubmit} onKeyPress={(e) => this.checkInputKeyDown(e)} data-type="to"></input>
+                    to:<input onFocus={(e) => e.target.select()} onBlur={this.handleInputSubmit} onKeyPress={(e) => this.checkInputKeyDown(e)} data-type="to"></input>
                 </div>
                 <div className="dtInput total">
-                    free:<input readOnly></input>
+                    free:<input  tabIndex="-1" readOnly></input>
                 </div>
                 <textarea ref={(el) => this.input = el} className="ctrInput"/>
             </div>
