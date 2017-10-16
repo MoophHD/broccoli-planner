@@ -18,6 +18,14 @@ body {
   padding: 10px;
 }
 
+.ghostChunck {
+  opacity: 0.4;
+}
+
+/* .chosenChunck {
+  background-color: rgb(230, 73, 104);
+} */
+
 .chunck > div {
   display: inline-block;
   margin-right: 25px;
@@ -28,6 +36,24 @@ body {
   vertical-align: top;
   padding: 5px 25px;
   width: 60%;
+  max-height: 600px;
+  overflow-y: scroll;
+}
+
+.chunckContainer::-webkit-scrollbar {
+  width: 10px;
+  background-color: none;
+  background-color: #f0f0f0;
+  
+}
+
+.chunckContainer::-webkit-scrollbar-thumb  {
+  background-color: #d8d8d8;
+  /* background-color: #F16A85 */
+}
+
+.chunckContainer::-webkit-scrollbar-track-piece {
+  background-color:none;
 }
 
 .controller {
