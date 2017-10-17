@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
@@ -13,18 +15,22 @@ class Controller extends Component {
     }
 
     componentDidMount() {
+        let {byId, ids} = this.props;
         this.id = 0;
         this.lastValue = '';
-        this.queueIds = [];
-        this.queueById = {};
+
+        
+        this.byId = byId ? byId : {};
+        this.ids = ids ? ids : [];
 
         this.nameReg = /.+?(?=(\d{1,2}\.\d{1,2}|\d))/;
         this.tmReg = /\d{1,2}(\.\d{1,2})?/g;
         
+        this.txtState = this.ids.length > 0 ? this.stateToTxt(ids, byId) : '';
 
         this.input.spellcheck = false;
         this.input.addEventListener("keyup",this.handleEnter);
-        this.input.addEventListener("blur",() => this.grabChuncks())
+        this.input.addEventListener("blur",() => this.grabChuncks());
     }
 
     handleEnter(e) { //eslint-disable-line
@@ -37,21 +43,40 @@ class Controller extends Component {
         this.grabChuncks();
     }
 
+    stateToTxt(ids, byid) {
+        let resString = '',
+            chunck;
+        
+        ids.sort((id1, id2) => {
+            return byID[id1].order > byID[id2].order ? 1 : -1;
+        })
+
+        ids.forEach((id) => {
+            chunck = byid[id];
+            resString += chunck.name + chunck.duration + '\n';
+        })
+
+        return resString;
+    }
+
     grabChuncks(pressure=false) { //eslint-disable-line
         let val = this.input.value;
-        
+
         if (val == this.lastValue && !pressure) return;
+        if (!val.match(/\d$/gm)) return;
+        if (val.match(/\d$/gm).length == this.ids.length) {
+            console.log('1 passed');
+        }   
         
-
-
         this.clearQueue();
         let tm,
             name;
 
         let inp = val.split('\n'),
             id = this.id,
-            queueIds = this.queueIds,
-            queueById = this.queueById;
+            queueIds = this.ids,
+            queueById = this.byId;
+
         inp.forEach(function(ln) {
             if (this.tmReg.test(ln)) {
                 name = ln.match(this.nameReg) ? ln.match(this.nameReg)[0] : 'None';
@@ -80,8 +105,8 @@ class Controller extends Component {
         let diff = to.diff(from, 'minutes');
         let lastDt = from.clone();
         
-        let queueIds = this.queueIds,
-            queueById = this.queueById,
+        let queueIds = this.ids,
+            queueById = this.byId,
             addChunck = this.props.actions.addChunck;
 
         let chCount = queueIds.length - 1;
@@ -99,7 +124,7 @@ class Controller extends Component {
 
         queueIds.forEach((id) => {
             let current = queueById[id];
-            addChunck(current.name, lastDt.clone(), lastDt.clone().add(current.tm, 'minutes'));
+            addChunck(current.name, lastDt.clone(), lastDt.clone().add(current.tm, 'minutes'), current.tm);
             lastDt.add(current.tm, 'minutes');
         })
 
@@ -117,8 +142,8 @@ class Controller extends Component {
 
     clearQueue() {
         this.props.actions.clearChuncks();
-        this.queueById = {};
-        this.queueIds = [];
+        this.ids = [];
+        this.byId = {};
     }
 
     focusInput() {
@@ -261,7 +286,7 @@ class Controller extends Component {
 
 function mapStateToProps(state) {
     return {
-      byID: state.chuncksByID,
+      byId: state.chuncksByID,
       ids: state.chuncksIDs
     }
   }

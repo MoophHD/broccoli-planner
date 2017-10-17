@@ -22,66 +22,40 @@ class App extends Component {
   } 
 
   sortableContainer(cont) {
+    console.log('sortableCont');
     if (!cont) return;
 
     this._container = Sortable.create(cont, 
      {group: "chuncks",
       ghostClass:"ghostChunck",
       chosenClass: "chosenChunck",
-    	onEnd: function (/**Event*/evt) {
-        let itemEl = evt.item;  // dragged HTMLElement
-      },
-      store: {
-        /**
-         * Get the order of elements. Called once during initialization.
-         * @param   {Sortable}  sortable
-         * @returns {Array}
-         */
-        get: function (sortable) {
-          console.log('reorder');
-          let order;
-          if (this.props.order.length !== 0) {
-            order = this.props.order;
-          } else if (localStorage.getItem(sortable.options.group.name)) {
-            order = localStorage.getItem(sortable.options.group.name);
-          }
-
-          console.log(order);
-          return order ? order.split('|') : [];
-        }.bind(this),
-    
-        /**
-         * Save the order of elements. Called onEnd (when the item is dropped).
-         * @param {Sortable}  sortable
-         */
-        set: function (sortable) {
-          var order = sortable.toArray();
-          this.props.actions.setOrder(order)
-          
-          localStorage.setItem(sortable.options.group.name, order.join('|'));
-        }.bind(this)
-      }
+    	onEnd: function (e) {
+        let itemEl = e.item;  // dragged HTMLElement
+        let replacedInd = e.newIndex;
+        let replacedElemId = document.querySelector(`[data-order="${replacedInd}"]`).dataset.id;
+        this.props.actions.setOrder(itemEl.dataset.id, replacedElemId, e.oldIndex, e.newIndex);
+      }.bind(this)
       })
   }
 
   render() {
     const {actions} = this.props;
-    const { byID, ids, order} = this.props;
+    const { byID, ids } = this.props;
 
-    let chuncks = ids.map((id, ind) => {
+    ids.sort((id1, id2) => {
+      return byID[id1].order > byID[id2].order ? 1 : -1;
+    })
+    let chuncks = ids.map((id) => {
       let curr = byID[id];
       return (<Chunck 
                 key={'_chunck'+id} 
                 name={curr.name}
                 from={curr.from}
                 to={curr.to}
-                order={order[ind]}
+                order={curr.order}
+                id={id}
                 />)
     })
-    
-    // chuncks.sort((ch1, ch2) => {
-    //   return ch1.props.order > ch2.props.order ? 1 : -1;
-    // })
 
     return (
       <div >
@@ -95,8 +69,7 @@ class App extends Component {
 function mapStateToProps(state) {
   return {
     byID: state.chuncksByID,
-    ids: state.chuncksIDs,
-    order: state.chunckOrder
+    ids: state.chuncksIDs
   }
 }
 
