@@ -1,10 +1,10 @@
-/* eslint-disable */
 
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
 import moment from 'moment';
 import * as npActions from '../actions/npActions'
+import Cookies from 'js-cookie'
 
 class Controller extends Component {
     constructor(props) {
@@ -15,6 +15,9 @@ class Controller extends Component {
     }
 
     componentDidMount() {
+        if (Cookies.get('ctrVal')) this.input.value = Cookies.get('ctrVal');
+        this.grabChuncks(true);
+        
         let {byId, ids} = this.props;
         this.id = 0;
         this.lastValue = '';
@@ -48,7 +51,7 @@ class Controller extends Component {
             chunck;
         
         ids.sort((id1, id2) => {
-            return byID[id1].order > byID[id2].order ? 1 : -1;
+            return byid[id1].order > byid[id2].order ? 1 : -1;
         })
 
         ids.forEach((id) => {
