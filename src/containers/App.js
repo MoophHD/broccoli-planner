@@ -8,6 +8,8 @@ import Chunck from '../components/Chunck'
 import Controller from './Controller'
 import Sortable from 'sortablejs'
 
+import Cookies from 'js-cookie'
+
 class App extends Component {
   constructor(props) {
     super(props);
@@ -30,12 +32,17 @@ class App extends Component {
       ghostClass:"ghostChunck",
       chosenClass: "chosenChunck",
     	onEnd: function (e) {
+        if (e.newIndex == e.oldIndex) return;
         let itemEl = e.item;  // dragged HTMLElement
         let replacedInd = e.newIndex;
         let replacedElemId = document.querySelector(`[data-order="${replacedInd}"]`).dataset.id;
         this.props.actions.setOrder(itemEl.dataset.id, replacedElemId, e.oldIndex, e.newIndex);
       }.bind(this)
       })
+  }
+
+  clearCookies() {
+    Cookies.remove('ctrVal');
   }
 
   render() {
@@ -47,18 +54,21 @@ class App extends Component {
     })
     let chuncks = ids.map((id) => {
       let curr = byID[id];
-      return (<Chunck 
-                key={'_chunck'+id} 
-                name={curr.name}
-                from={curr.from}
-                to={curr.to}
-                order={curr.order}
-                id={id}
-                />)
+      return (
+        <Chunck 
+          key={'_chunck'+id} 
+          name={curr.name}
+          from={curr.from}
+          to={curr.to}
+          order={curr.order}
+          id={id}
+          />
+      )
     })
 
     return (
       <div >
+        <button className="cookieBtn" onClick={this.clearCookies}></button>
         <Controller />
       <div ref={this.sortableContainer} id="sortable" className="chunckContainer">
         {chuncks}

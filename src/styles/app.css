@@ -124,4 +124,12 @@ body {
   text-align: center;
 } 
 
+.cookieBtn {
+  padding: 10px;
+  background-color: transparent;
+  border: none;
 
+  position: absolute;
+  top:0;
+  left: 0;
+}
