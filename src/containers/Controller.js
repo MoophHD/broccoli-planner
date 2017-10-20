@@ -7,6 +7,7 @@ import * as npActions from '../actions/npActions'
 import * as chActions from '../actions/chunckActions'
 import Cookies from 'js-cookie'
 import InputFields from '../components/InputFields'
+import regexLastIndexOf from '../gist/regexLastIndexOf'
 
 class Controller extends Component {
     constructor(props) {
@@ -27,7 +28,7 @@ class Controller extends Component {
         }
         
         this.reg = {
-            chunck :/.+\ +\d{1,2}(\.\d{1,2})?/g,
+            chunck :/.+\ +\d{1,2}(\.\d{1,2})?$/gm,
             name : /.+?(?=(\ +\d))/g,
             tm : /\ (\d{1,2}(\.\d{1,2})?)/g,
             inpSplit : /\n/
@@ -45,7 +46,7 @@ class Controller extends Component {
         if (valSplitted[actionLine].match(this.reg.chunck)) { // this.reg.chunck.test(valSplitted[actionLine]
             this.checkLine(actionLine, valSplitted[actionLine], () => this.oldChuncks = valSplitted)
         }
-        
+
         let val = e.target.value;
         this.setInputVal(val);
     }
@@ -89,7 +90,7 @@ class Controller extends Component {
         }
 
         if (!oldTm || oldTm != newTm) {
-            changeDur(id, newTm);
+            changeDur(id, parseFloat(newTm));
         }
 
         cb();
@@ -124,31 +125,30 @@ class Controller extends Component {
             document.querySelector('[data-type=to]').focus()
         }
     }
-
-    stateToTxt() {
+    syncInput() {
         let ids = this.props.ids;
-        let byid = this.props.byId;
-        if (ids.length < 1) return '';
-
-        let resString = '',
-            chunck;
-        ids.sort((id1, id2) => {
-            return byid[id1].order > byid[id2].order ? 1 : -1;
-        })
+        let chuncks = this.props.txtCh;
+        let resString = '';
 
         ids.forEach((id) => {
-            chunck = byid[id];
-            resString += chunck.name + chunck.duration + '\n';
+            let chunck = chuncks[id];
+            resString += chunck.name + ' ' + chunck.duration + '\n';
         })
 
-        return resString;
+        
+        let lastVal = this.state.value;
+        resString = resString + lastVal.slice(lastVal.regexLastIndexOf(this.reg.chunck));
+        this.setState(() => {return {value: resString}});
     }
 
-    componentWillReceiveProps(nextProps) {
-        console.log(JSON.stringify(this.props.txtCh));
-        console.log(JSON.stringify(nextProps.txtCh));
-        if (JSON.stringify(this.props.txtCh) != JSON.stringify(nextProps.txtCh)) {
+    componentDidUpdate(prevProps) {
+        this.props.ids.sort((id1, id2) => {
+            return this.props.byId[id1].order > this.props.byId[id2].order ? 1 : -1;
+        })
+        console.log(this.props.txtCh);
+        if (JSON.stringify(this.props.txtCh) != JSON.stringify(prevProps.txtCh)) {
             console.log('fresh');
+            this.syncInput();
         }
     }
     
