@@ -1,5 +1,5 @@
 import {CHANGE_NAME,
-        CHANGE_DT} from '../constants/core'
+        CHANGE_DUR} from '../constants/core'
 
 export function changeName(id, name) {
     return {
@@ -9,10 +9,10 @@ export function changeName(id, name) {
     }
 }
 
-export function changeDt(id, diff) {
+export function changeDur(id, dur) {
     return {
-        type: CHANGE_DT,
-        diff: diff,
+        type: CHANGE_DUR,
+        dur: dur,
         id: id
     }
 }

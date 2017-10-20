@@ -20,11 +20,9 @@ class App extends Component {
     if (!this._container) return;
 
     this._container.options.store;
-    console.log()
   } 
 
   sortableContainer(cont) {
-    console.log('sortableCont');
     if (!cont) return;
 
     this._container = Sortable.create(cont, 
@@ -33,7 +31,7 @@ class App extends Component {
       chosenClass: "chosenChunck",
     	onEnd: function (e) {
         if (e.newIndex == e.oldIndex) return;
-        let itemEl = e.item;  // dragged HTMLElement
+        let itemEl = document.querySelector(`[data-order="${e.oldIndex}"]`);
         let replacedInd = e.newIndex;
         let replacedElemId = document.querySelector(`[data-order="${replacedInd}"]`).dataset.id;
         this.props.actions.setOrder(itemEl.dataset.id, replacedElemId, e.oldIndex, e.newIndex);
@@ -48,15 +46,17 @@ class App extends Component {
   render() {
     const {actions} = this.props;
     const { byID, ids } = this.props;
+    let _ids = [...ids];
 
-    ids.sort((id1, id2) => {
+    _ids.sort((id1, id2) => {
       return byID[id1].order > byID[id2].order ? 1 : -1;
     })
-    let chuncks = ids.map((id) => {
+
+    let chuncks = _ids.map((id, ind) => {
       let curr = byID[id];
       return (
         <Chunck 
-          key={'_chunck'+id} 
+          key={`_chunck${ind}${id}${Math.random()}`}  //${id}
           name={curr.name}
           from={curr.from}
           to={curr.to}

@@ -134,7 +134,7 @@ class InputFields extends Component {
                     to:<input onFocus={(e) => e.target.select()} onBlur={this.handleInputSubmit} onKeyPress={(e) => this.checkInputKeyDown(e)} data-type="to"></input>
                 </div>
                 <div className="dtInput total">
-                    free:<input  tabIndex="-1" readOnly></input>
+                    spare:<input  tabIndex="-1" readOnly></input>
                 </div>
             </div>
         )

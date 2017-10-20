@@ -16,6 +16,7 @@ class Controller extends Component {
         this.handleInputChange = this.handleInputChange.bind(this);
         this.checkEnter = this.checkEnter.bind(this);
     }
+    
     componentDidMount() {
         this.lastValue = '';
         this.oldChuncks = [];
@@ -28,7 +29,7 @@ class Controller extends Component {
         this.reg = {
             chunck :/.+\ +\d{1,2}(\.\d{1,2})?/g,
             name : /.+?(?=(\ +\d))/g,
-            tm : /\d{1,2}(\.\d{1,2})?/g,
+            tm : /\ (\d{1,2}(\.\d{1,2})?)/g,
             inpSplit : /\n/
         }
         
@@ -37,15 +38,19 @@ class Controller extends Component {
         this.input.addEventListener("keyup", (e) => this.checkEnter(e));
     }
 
-    checkEnter(e) {
+    handleInputChange(e) {
         let actionLine = this.getLineNumber(e.target) - 1;
         let valSplitted = e.target.value.split('\n');
 
         if (valSplitted[actionLine].match(this.reg.chunck)) { // this.reg.chunck.test(valSplitted[actionLine]
-            console.log('passed');
             this.checkLine(actionLine, valSplitted[actionLine], () => this.oldChuncks = valSplitted)
         }
         
+        let val = e.target.value;
+        this.setInputVal(val);
+    }
+
+    checkEnter(e) {
         if (e.key == "Enter") {
             if (Object.keys(this.props.to).length ===  0|| Object.keys(this.props.from).length === 0) {
                 e.preventDefault()
@@ -63,7 +68,7 @@ class Controller extends Component {
         if (lineToCompare == oldLine) return;
 
         let {addChunck} = this.props.npActions;
-        let {changeName, changeDt} = this.props.chActions;
+        let {changeName, changeDur} = this.props.chActions;
 
         let id = this.props.ids[lineNum];
         let newTm = lineToCompare.match(this.reg.tm)[0];
@@ -71,7 +76,7 @@ class Controller extends Component {
         
         if (id == undefined) { // new Line
             let momObj = this.addMoment(newTm);
-            addChunck(newNm, momObj.from, momObj.to, newTm);
+            addChunck(newNm, momObj.from, momObj.to, parseInt(newTm.split(' ').join("")));
             cb();
             return;
         }
@@ -84,8 +89,7 @@ class Controller extends Component {
         }
 
         if (!oldTm || oldTm != newTm) {
-            console.log(newTm-oldTm);
-            changeDt(id, oldTm ? ~~((newTm-oldTm)*1000)/1000 : newTm);
+            changeDur(id, newTm);
         }
 
         cb();
@@ -94,7 +98,6 @@ class Controller extends Component {
     addMoment(dur) {
         let {byId, ids} = this.props;
         let lastCh = byId[ids[ids.length-1]] ? byId[ids[ids.length-1]].to : this.props.from;
-        console.log(lastCh);
         let newCh = lastCh.clone().add(dur, 'hours');
         return {from: lastCh, to: newCh};
     }
@@ -103,10 +106,7 @@ class Controller extends Component {
         return textarea.value.substr(0, textarea.selectionStart).split("\n").length;
     }
 
-    handleInputChange(e) {
-        let val = e.target.value;
-        this.setInputVal(val);
-    }
+
 
     setInputVal(newVal) {
         this.setState({value: newVal});
@@ -144,14 +144,14 @@ class Controller extends Component {
         return resString;
     }
 
-    componentWillUpdate() {
-        // let stVal = this.stateToTxt();
-        // if (stVal != this.lastValue) {
-        //     this.setState((prevState, props) => {value: stVal})
-        //     this.oldChuncks = stVal.split('\n');
-        // }
+    componentWillReceiveProps(nextProps) {
+        console.log(JSON.stringify(this.props.txtCh));
+        console.log(JSON.stringify(nextProps.txtCh));
+        if (JSON.stringify(this.props.txtCh) != JSON.stringify(nextProps.txtCh)) {
+            console.log('fresh');
+        }
     }
-
+    
     render() {
         return(
             <div className="controller">
@@ -167,7 +167,8 @@ function mapStateToProps(state) {
       byId: state.chuncksByID,
       ids: state.chuncksIDs,
       from: state.from,
-      to: state.to
+      to: state.to,
+      txtCh: state.txtChuncks
     }
   }
   

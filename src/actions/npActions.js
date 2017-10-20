@@ -5,14 +5,15 @@ import
 
 let nextChunckId = 0;
 
-export function addChunck(name,from,to,dur) {
+export function addChunck(name,from,to,dur, order) {
     return {
         type: ADD_CHUNCK,
         name: name,
         id: nextChunckId++,
         from: from,
         to: to,
-        dur: dur
+        dur: dur,
+        order: order
     }
 }
 

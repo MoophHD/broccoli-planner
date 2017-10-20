@@ -73,7 +73,6 @@ class Controller extends Component {
 
         let resString = '',
             chunck;
-        console.log(ids);
         ids.sort((id1, id2) => {
             return byid[id1].order > byid[id2].order ? 1 : -1;
         })
@@ -93,9 +92,9 @@ class Controller extends Component {
 
         if (!val.match(/\d$/gm)) return;
 
-        if (val.match(/\d$/gm).length == this.ids.length) {
-            console.log('1 passed');
-        }   
+        // if (val.match(/\d$/gm).length == this.ids.length) {
+        //     console.log('1 passed');
+        // }   
 
         let splittedInp = val.split('\n');
         
@@ -186,7 +185,6 @@ class Controller extends Component {
         }
     }
     render() {
-        console.log('1');
         return(
             <div className="controller">
                 <div className="dtInput">
