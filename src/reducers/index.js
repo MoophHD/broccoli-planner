@@ -5,6 +5,7 @@ import
     SET_ORDER,
     SET_DT,
     CHANGE_NAME,
+    REBUILD_CHUNCKS,
     CHANGE_DUR} from '../constants/core'
 import moment from 'moment';
     
@@ -13,8 +14,7 @@ let initialState = {
     chuncksByID: {},
     chuncksIDs: [],
     from: {},
-    to: {},
-    txtChuncks: {}
+    to: {}
 }
 
 Array.prototype.swap = function (x,y) {
@@ -24,46 +24,92 @@ Array.prototype.swap = function (x,y) {
     return this;
   }
 
-let id, byId, chIds, txt, order;
+let id, order, ids, byId
 export default function index(state=initialState, action) {
     switch (action.type) {
+        case REBUILD_CHUNCKS:
+            ({byId, ids} = rebuildChuncks(action.byId, action.ids, state.from));
+            return {...state, chuncksByID:byId, chuncksIDs:ids}
         case CHANGE_NAME:
             id = action.id;
             byId = {...state.chuncksByID};
-            txt = {...state.txtChuncks};
-            byId[id].name = txt[id].name = action.name;   
+            byId[id].name = action.name;   
             return {...state, chuncksByID:byId}
         case ADD_CHUNCK:
             id = action.id;
-            order = action.order ? action.order : state.chuncksIDs.length
+            order = action.order ? action.order : state.chuncksIDs.length;
+            ({byId, ids} = rebuildChuncks({...state.chuncksByID, [id]: {
+                order: order,
+                duration: action.dur,
+                name: action.name}
+            },[...state.chuncksIDs, id], state.from));
             return {...state,
-                 txtChuncks: {...state.txtChuncks, [id]:{name: action.name, duration:action.dur, order: order}},
-                 chuncksIDs: [...state.chuncksIDs, id],
-                 chuncksByID: {...state.chuncksByID, [id]: {
-                     order: order,
-                     duration: action.dur,
-                     name: action.name,
-                     from: action.from,
-                     to: action.to}} } 
+                 chuncksIDs: ids,
+                 chuncksByID: byId } 
         case CLEAR_CHUNCKS:
-            return {...state, chuncksByID:{}, chuncksIDs:[], txtChuncks: {}}
+            return {...state, chuncksByID:{}, chuncksIDs:[]}
         case SET_ORDER:
-            byId = {...state.chuncksByID};
-            txt = {...state.txtChuncks};
-            byId[action.from].order = txt[action.from].order = action.toInd;
-            byId[action.to].order =  txt[action.to].order =action.fromInd;
-            return {...state, chuncksByID:byId}
+            let _byId = {...state.chuncksByID};
+            _byId[action.from].order  = action.toInd;
+            _byId[action.to].order =action.fromInd;
+           ({byId, ids} = rebuildChuncks(_byId, [...state.chuncksIDs], state.from));
+            return {...state, chuncksByID:byId, chuncksIDs:ids}
+        // return {...state};
         case SET_DT :
-            return {...state, [action.dtType]: action.payload}
+            if (action.dtType == "from") {
+                ({byId, ids} = rebuildChuncks({...state.chuncksByID}, [...state.chuncksIDs], action.payload));
+                return {...state, [action.dtType]: action.payload,
+                    chuncksByID: byId,
+                    chuncksIDs: ids}
+            } else {
+                return {...state, [action.dtType]: action.payload}
+            }
         case CHANGE_DUR:
             id = action.id;
-            txt[id].duration + action.dur;
             byId = moveChunckDt(state.chuncksIDs.indexOf(id), {...state.chuncksByID}, [...state.chuncksIDs], action.dur - state.chuncksByID[id].duration)
             return {...state, chuncksByID:byId}
         default:
             return state
     }
 }
+
+function reorderIds(ids, byId) {
+    ids.sort((a,b) => {
+        return byId[a].order > byId[b].order ? 1 : -1;
+    })
+    return ids;
+}
+
+function rebuildChuncks(byId={}, ids=[], from) {
+    ids = reorderIds(ids, byId);
+    let anchorFrom = from;
+    let predictedChTo;
+    ids.forEach(function(id, ind) {
+        let ch = byId[id];
+        let dur;
+        if (/\.\d{2}/.test(ch)) {
+            dur = 60*~~(ch.duration)+ch.duration%1*100;
+        } else {
+            dur = 60*ch.duration;
+        }
+        let anchorTo = anchorFrom.clone().add(dur, 'minutes');
+        if (!ch.from || !ch.to) {
+            byId[id].from = anchorFrom;
+            byId[id].to = anchorTo;
+        } else if(!ch.from.isSame(anchorFrom) && !ch.to.isSame(anchorTo))  {
+            byId[id].from = anchorFrom;
+            byId[id].to = anchorTo;
+        } else if (!ch.from.isSame(anchorFrom)) {
+            byId[id].from = anchorFrom;
+        } else if (!ch.to.isSame(anchorTo)) {
+            byId[id].to = anchorTo;
+        }
+        anchorFrom = anchorTo;
+    });
+
+    return {byId:byId, ids:ids};
+}
+
 
 function moveChunckDt(start, byid, ids, diff) {
     byid[ids[start]].duration += diff;

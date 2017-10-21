@@ -24,12 +24,24 @@ class App extends Component {
 
   sortableContainer(cont) {
     if (!cont) return;
-
+    var dragGhost = {};
     this._container = Sortable.create(cont, 
      {group: "chuncks",
       ghostClass:"ghostChunck",
       chosenClass: "chosenChunck",
+      animation: 100,
+      setData: function (dataTransfer, dragEl) {
+        dragGhost = dragEl.cloneNode(true);
+        dragGhost.removeAttribute('data-id');
+        dragGhost.removeAttribute('data-order');
+        dragGhost.removeAttribute('data-id');
+        
+        dragGhost.classList.add('ghostChunck');
+        document.body.appendChild(dragGhost);
+        dataTransfer.setDragImage(dragGhost, 0, 0);
+      },
     	onEnd: function (e) {
+        dragGhost.parentNode.removeChild(dragGhost);
         if (e.newIndex == e.oldIndex) return;
         let itemEl = document.querySelector(`[data-order="${e.oldIndex}"]`);
         let replacedInd = e.newIndex;
@@ -46,17 +58,12 @@ class App extends Component {
   render() {
     const {actions} = this.props;
     const { byID, ids } = this.props;
-    let _ids = [...ids];
 
-    _ids.sort((id1, id2) => {
-      return byID[id1].order > byID[id2].order ? 1 : -1;
-    })
-
-    let chuncks = _ids.map((id, ind) => {
+    let chuncks = ids.map((id, ind) => {
       let curr = byID[id];
       return (
         <Chunck 
-          key={`_chunck${ind}${id}${Math.random()}`}  //${id}
+          key={`_chunck${id}${curr.order}${Math.random()}`}  //${Math.random()}
           name={curr.name}
           from={curr.from}
           to={curr.to}

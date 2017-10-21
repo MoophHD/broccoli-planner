@@ -7,7 +7,7 @@ import * as npActions from '../actions/npActions'
 import * as chActions from '../actions/chunckActions'
 import Cookies from 'js-cookie'
 import InputFields from '../components/InputFields'
-import regexLastIndexOf from '../gist/regexLastIndexOf'
+import regLastMatched from '../gist/regLastMatched'
 
 class Controller extends Component {
     constructor(props) {
@@ -16,39 +16,69 @@ class Controller extends Component {
         this.state = {value: ''};
         this.handleInputChange = this.handleInputChange.bind(this);
         this.checkEnter = this.checkEnter.bind(this);
+        this.checkVal = this.checkVal.bind(this);
     }
-    
+
+    componentWillMount() {
+        this.oldinpStrChuncks = [];
+    }
+        
     componentDidMount() {
+        this.lastCursorPos = 0;
         this.lastValue = '';
-        this.oldChuncks = [];
+        this.lastById = '';
         if (Cookies.get('ctrVal')) {
-            this.setInputVal(Cookies.get('ctrVal'));
+            this.setState({value: Cookies.get('ctrVal')});
             this.lastValue = Cookies.get('ctrVal');
-            this.oldChuncks = this.lastValue.split('\n');
         }
         
         this.reg = {
             chunck :/.+\ +\d{1,2}(\.\d{1,2})?$/gm,
             name : /.+?(?=(\ +\d))/g,
-            tm : /\ (\d{1,2}(\.\d{1,2})?)/g,
+            duration : /\ (\d{1,2}(\.\d{1,2})?)/g,
+            fullDur : /\ \d{1,2}\.\d{1,2}/g,
             inpSplit : /\n/
         }
         
         this.input.spellcheck = false;
-        this.input.addEventListener("blur",() => this.grabChuncks());
+        this.input.addEventListener("blur",() => this.checkVal());
         this.input.addEventListener("keyup", (e) => this.checkEnter(e));
     }
 
-    handleInputChange(e) {
-        let actionLine = this.getLineNumber(e.target) - 1;
-        let valSplitted = e.target.value.split('\n');
 
-        if (valSplitted[actionLine].match(this.reg.chunck)) { // this.reg.chunck.test(valSplitted[actionLine]
-            this.checkLine(actionLine, valSplitted[actionLine], () => this.oldChuncks = valSplitted)
+    checkVal() {
+        let inpStrChuncks = this.state.value.match(this.reg.chunck);
+        if (!inpStrChuncks) inpStrChuncks = [];
+        if (!this.oldinpStrChuncks ) this.oldinpStrChuncks = [];
+        if (inpStrChuncks.length == this.oldinpStrChuncks.length && 
+            JSON.stringify(inpStrChuncks) == JSON.stringify(this.oldinpStrChuncks)) {
+            return;
         }
 
-        let val = e.target.value;
-        this.setInputVal(val);
+        this.oldinpStrChuncks = inpStrChuncks;
+        let chuncks = {};
+        let ids = this.props.ids.slice();
+        let lastId = ids.length > 0 ? ids.length : 0;
+        let dur;
+
+        while (ids.length < inpStrChuncks.length) {
+            ids.push(lastId++);
+        }
+
+        inpStrChuncks.forEach((ch, ind) => {
+            dur = ch.match(this.reg.duration)[0]
+            chuncks[ids[ind]] = {};
+            chuncks[ids[ind]].name = ch.match(this.reg.name)[0];
+            chuncks[ids[ind]].duration = dur.slice(1, dur.length);
+            chuncks[ids[ind]].order = ind;
+        })
+        ids = ids.slice(0, inpStrChuncks.length);
+        this.props.npActions.rebuildChuncks(chuncks, ids);
+    }
+
+    handleInputChange(e) {
+        this.lastCursorPos = e.target.selectionEnd;
+        this.setState({value: e.target.value},function() {this.checkVal()}.bind(this));
     }
 
     checkEnter(e) {
@@ -57,43 +87,9 @@ class Controller extends Component {
                 e.preventDefault()
                 this.focusInput();
                 return;
-            }// } else {
-            //     this.grabChuncks();
-            // }
+            }
         }
 
-    }
-
-    checkLine(lineNum, lineToCompare, cb) {
-        let oldLine = this.oldChuncks[lineNum];
-        if (lineToCompare == oldLine) return;
-
-        let {addChunck} = this.props.npActions;
-        let {changeName, changeDur} = this.props.chActions;
-
-        let id = this.props.ids[lineNum];
-        let newTm = lineToCompare.match(this.reg.tm)[0];
-        let newNm = lineToCompare.match(this.reg.name)[0];
-        
-        if (id == undefined) { // new Line
-            let momObj = this.addMoment(newTm);
-            addChunck(newNm, momObj.from, momObj.to, parseInt(newTm.split(' ').join("")));
-            cb();
-            return;
-        }
-
-        let oldTm = this.reg.tm.test(oldLine) ? oldLine.match(this.reg.tm)[0] : null; 
-        let oldNm = this.reg.name.test(oldLine) ? oldLine.match(this.reg.name)[0] : null;
-
-        if (!oldNm || oldNm != newNm) {
-            changeName(id, newNm);
-        }
-
-        if (!oldTm || oldTm != newTm) {
-            changeDur(id, parseFloat(newTm));
-        }
-
-        cb();
     }
 
     addMoment(dur) {
@@ -102,22 +98,7 @@ class Controller extends Component {
         let newCh = lastCh.clone().add(dur, 'hours');
         return {from: lastCh, to: newCh};
     }
-
-    getLineNumber(textarea) {
-        return textarea.value.substr(0, textarea.selectionStart).split("\n").length;
-    }
-
-
-
-    setInputVal(newVal) {
-        this.setState({value: newVal});
-    }
     
-    grabChuncks() {
-        let val = this.input.value;
-        let splittedInp = val.split(this.reg.inpSplit);
-    }
-
     focusInput() {
         if (Object.keys(this.props.from).length === 0) {
             document.querySelector('[data-type=from]').focus()
@@ -125,9 +106,9 @@ class Controller extends Component {
             document.querySelector('[data-type=to]').focus()
         }
     }
-    syncInput() {
-        let ids = this.props.ids;
-        let chuncks = this.props.txtCh;
+
+    syncInput({ids, byId}) {
+        let chuncks = byId;
         let resString = '';
 
         ids.forEach((id) => {
@@ -135,23 +116,24 @@ class Controller extends Component {
             resString += chunck.name + ' ' + chunck.duration + '\n';
         })
 
+        resString = resString.slice(0, -1);
         
         let lastVal = this.state.value;
-        resString = resString + lastVal.slice(lastVal.regexLastIndexOf(this.reg.chunck));
-        this.setState(() => {return {value: resString}});
+        let lastCh = regLastMatched(lastVal, this.reg.chunck);
+        resString = resString + lastVal.slice(lastCh.index+lastCh.value.length, lastVal.length);
+        
+        this.setState({value: resString}, () => this.input.setSelectionRange(this.lastCursorPos, this.lastCursorPos));
     }
 
-    componentDidUpdate(prevProps) {
-        this.props.ids.sort((id1, id2) => {
-            return this.props.byId[id1].order > this.props.byId[id2].order ? 1 : -1;
-        })
-        console.log(this.props.txtCh);
-        if (JSON.stringify(this.props.txtCh) != JSON.stringify(prevProps.txtCh)) {
-            console.log('fresh');
-            this.syncInput();
+    componentWillReceiveProps(nextProps) {
+        if (Object.keys(this.props.byId).length == Object.keys(nextProps.byId).length && // resorted
+            this.lastById && this.lastById != JSON.stringify(nextProps.byId)) {
+            this.syncInput(nextProps);
         }
+        
+        this.lastById = JSON.stringify(nextProps.byId);
     }
-    
+
     render() {
         return(
             <div className="controller">
@@ -167,8 +149,7 @@ function mapStateToProps(state) {
       byId: state.chuncksByID,
       ids: state.chuncksIDs,
       from: state.from,
-      to: state.to,
-      txtCh: state.txtChuncks
+      to: state.to
     }
   }
   

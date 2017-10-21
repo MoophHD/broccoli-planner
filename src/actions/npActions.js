@@ -1,7 +1,8 @@
 import 
     {ADD_CHUNCK,
     CLEAR_CHUNCKS,
-    SET_ORDER} from '../constants/core'
+    SET_ORDER,
+    REBUILD_CHUNCKS} from '../constants/core'
 
 let nextChunckId = 0;
 
@@ -30,5 +31,13 @@ export function setOrder(from, to, fromInd,  toInd) {
         to: to,
         fromInd: fromInd,
         toInd: toInd
+    }
+}
+
+export function rebuildChuncks(byId, ids) {
+    return {
+        type: REBUILD_CHUNCKS,
+        byId: byId,
+        ids: ids
     }
 }

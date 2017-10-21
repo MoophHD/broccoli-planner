@@ -7,6 +7,9 @@ import moment from 'moment'
 class InputFields extends Component {
     constructor(props) {
         super(props);
+        this.state = {
+            spare: ''
+        }
         this.handleInputSubmit = this.handleInputSubmit.bind(this);
     }
 
@@ -87,7 +90,7 @@ class InputFields extends Component {
 
         } else {
             if (tmPeriodMatch) {
-                val = val.split(val).join("");
+                val = val.split(/\ ?AM|\ ?PM/i).join("");
             }
 
             if (/\./.test(val)) {
@@ -124,6 +127,24 @@ class InputFields extends Component {
 
         return slice < 10 ? '0' + slice : slice.toString();
     }
+
+    componentWillReceiveProps(nextProps) {
+        let {ids, byId, from, to} = nextProps;
+        if (!from || !to) return;
+
+        let result;
+        let overAll = to.diff(from, 'minutes');
+        let fullfilled = 0; // in minutes
+
+        ids.forEach(function(id) {
+            fullfilled += byId[id].to.diff(byId[id].from, 'minutes');
+        });
+
+        result = Math.round(overAll - fullfilled);
+
+        this.setState(() => {return {spare:`${~~(result/60)}h${result%60}m`}})
+    }
+
     render() {
         return(
             <div>
@@ -134,7 +155,7 @@ class InputFields extends Component {
                     to:<input onFocus={(e) => e.target.select()} onBlur={this.handleInputSubmit} onKeyPress={(e) => this.checkInputKeyDown(e)} data-type="to"></input>
                 </div>
                 <div className="dtInput total">
-                    spare:<input  tabIndex="-1" readOnly></input>
+                    spare:<input value={this.state.spare} tabIndex="-1" readOnly></input>
                 </div>
             </div>
         )
@@ -144,7 +165,9 @@ class InputFields extends Component {
 function mapStateToProps(state) {
     return {
         from: state.from,
-        to: state.to
+        to: state.to,
+        byId: state.chuncksByID,
+        ids: state.chuncksIDs
     }
 }
   
