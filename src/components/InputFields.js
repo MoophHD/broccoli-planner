@@ -17,7 +17,6 @@ class InputFields extends Component {
     componentDidMount() {
         if (Cookies.get('dt')) {
             let dt = Cookies.getJSON('dt');
-            console.log(dt);
             let from = moment(dt.from).format('h:mm A');
             let to = moment(dt.to).format('h:mm A');
             let formFrom = from.split(':').join(' : ');
@@ -28,9 +27,6 @@ class InputFields extends Component {
 
             this.handleInputSubmit({target: document.querySelector('[data-type=from]')})
             this.handleInputSubmit({target: document.querySelector('[data-type=to]')})
-            
-            // this.actions.setDt(moment(dt.from), 'from');
-            // this.actions.setDt(moment(dt.to), 'to');
         }
 
         document.querySelector('[data-type=from]').focus();
@@ -38,7 +34,10 @@ class InputFields extends Component {
     }
 
     handleUnload() {
-        Cookies.set('dt', {from:this.props.from, to:this.props.to})
+        if (document.querySelector('[data-type=from]').value.length > 0 &&
+            document.querySelector('[data-type=to]').value.length > 0) {
+                Cookies.set('dt', {from:this.props.from, to:this.props.to})
+            }
     }
 
 

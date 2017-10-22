@@ -20,12 +20,9 @@ const store = configureStore()
 
 store.subscribe(() => {
   let state = store.getState();
-  Cookies.set('ctrVal', document.querySelector('.ctrInput').value, {expires: 1});
   if (Object.keys(state.to).length === 0 || Object.keys(state.from).length === 0) return;
   Cookies.set('dt', {from:store.getState().from, to:store.getState().to}, {expires: 1})
 })
-
-
 
 render(
   <Provider store={store}>

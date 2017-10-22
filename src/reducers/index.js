@@ -93,6 +93,7 @@ function rebuildChuncks(byId={}, ids=[], from) {
         } else {
             dur = 60*ch.duration;
         }
+        console.log(dur);
         dur = Math.round(dur);
 
         let anchorTo = anchorFrom.clone().add(dur, 'minutes');

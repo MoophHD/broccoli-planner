@@ -42,8 +42,17 @@ class Controller extends Component {
         }
         
         this.input.spellcheck = false;
+        window.addEventListener('beforeunload', () => this.handleUnload())
         this.input.addEventListener("blur",() => this.checkVal());
         this.input.addEventListener("keyup", (e) => this.checkEnter(e));
+
+        this.handleUnload = this.handleUnload.bind(this);
+    }
+
+    handleUnload() {
+        if (document.querySelector('ctrInput').value.length > 0) {
+            Cookies.set('ctrVal', this.state.value, {expires: 1});
+        }
     }
 
 
@@ -53,6 +62,7 @@ class Controller extends Component {
     }
 
     checkVal() {
+        Cookies.set('ctrVal', this.state.value, {expires: 1});
         let inpStrChuncks = this.state.value.match(this.reg.chunck);
 
         if (!inpStrChuncks) inpStrChuncks = [];

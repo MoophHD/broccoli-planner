@@ -53,6 +53,9 @@ class App extends Component {
   }
 
   clearCookies() {
+    document.querySelector('[data-type=from]').value = '';
+    document.querySelector('[data-type=to]').value = '';
+    document.querySelector('ctrInput').value = '';
     Cookies.remove('ctrVal');
     Cookies.remove('dt');
   }
