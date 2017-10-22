@@ -31,18 +31,7 @@ class App extends Component {
       ghostClass:"ghostChunck",
       chosenClass: "chosenChunck",
       animation: 100,
-      setData: function (dataTransfer, dragEl) {
-        dragGhost = dragEl.cloneNode(true);
-        dragGhost.removeAttribute('data-id');
-        dragGhost.removeAttribute('data-order');
-        dragGhost.removeAttribute('data-id');
-        
-        dragGhost.classList.add('ghostChunck');
-        document.body.appendChild(dragGhost);
-        dataTransfer.setDragImage(dragGhost, 0, 0);
-      },
     	onEnd: function (e) {
-        dragGhost.parentNode.removeChild(dragGhost);
         if (e.newIndex == e.oldIndex) return;
         let itemEl = document.querySelector(`[data-order="${e.oldIndex}"]`);
         let replacedInd = e.newIndex;
@@ -55,7 +44,7 @@ class App extends Component {
   clearCookies() {
     document.querySelector('[data-type=from]').value = '';
     document.querySelector('[data-type=to]').value = '';
-    document.querySelector('ctrInput').value = '';
+    document.querySelector('.ctrInput').value = '';
     Cookies.remove('ctrVal');
     Cookies.remove('dt');
   }
