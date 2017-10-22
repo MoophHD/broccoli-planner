@@ -87,11 +87,14 @@ function rebuildChuncks(byId={}, ids=[], from) {
     ids.forEach(function(id, ind) {
         let ch = byId[id];
         let dur;
-        if (/\.\d{2}/.test(ch)) {
+
+        if (/\.\d{2}/.test(ch.duration)) {
             dur = 60*~~(ch.duration)+ch.duration%1*100;
         } else {
             dur = 60*ch.duration;
         }
+        dur = Math.round(dur);
+
         let anchorTo = anchorFrom.clone().add(dur, 'minutes');
         if (!ch.from || !ch.to) {
             byId[id].from = anchorFrom;

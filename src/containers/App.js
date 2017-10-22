@@ -20,6 +20,7 @@ class App extends Component {
     if (!this._container) return;
 
     this._container.options.store;
+    
   } 
 
   sortableContainer(cont) {
@@ -53,6 +54,7 @@ class App extends Component {
 
   clearCookies() {
     Cookies.remove('ctrVal');
+    Cookies.remove('dt');
   }
 
   render() {

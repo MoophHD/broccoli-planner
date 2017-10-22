@@ -3,6 +3,7 @@ import * as actions from '../actions/pageActions';
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
 import moment from 'moment'
+import Cookies from 'js-cookie'
 
 class InputFields extends Component {
     constructor(props) {
@@ -12,6 +13,34 @@ class InputFields extends Component {
         }
         this.handleInputSubmit = this.handleInputSubmit.bind(this);
     }
+
+    componentDidMount() {
+        if (Cookies.get('dt')) {
+            let dt = Cookies.getJSON('dt');
+            console.log(dt);
+            let from = moment(dt.from).format('h:mm A');
+            let to = moment(dt.to).format('h:mm A');
+            let formFrom = from.split(':').join(' : ');
+            let fromTo = to.split(':').join(' : ');
+            
+            document.querySelector('[data-type=from]').value = formFrom;
+            document.querySelector('[data-type=to]').value = fromTo;
+
+            this.handleInputSubmit({target: document.querySelector('[data-type=from]')})
+            this.handleInputSubmit({target: document.querySelector('[data-type=to]')})
+            
+            // this.actions.setDt(moment(dt.from), 'from');
+            // this.actions.setDt(moment(dt.to), 'to');
+        }
+
+        document.querySelector('[data-type=from]').focus();
+        window.addEventListener('beforeunload', () => this.handleUnload())
+    }
+
+    handleUnload() {
+        Cookies.set('dt', {from:this.props.from, to:this.props.to})
+    }
+
 
     checkInputKeyDown(e) {
         if (e.key != "Enter") return;
@@ -103,13 +132,18 @@ class InputFields extends Component {
             result = moment(`${dt[0]}:${dt[1]} ${tmPeriod}`, "h:mm A").format('HH:mm').split(':');
             now.hour(result[0]);
             now.minute(result[1]);
-            now.second(0);
+            now.seconds(0);
 
-            dt[0] = this.checkAndFixZeros(dt[0]);
-            dt[1] = this.checkAndFixZeros(dt[1]);
-            formDt = `${dt.join(' : ')}${" " + tmPeriod}`;
+            formDt = this.formatDate(dt, tmPeriod);
             
         return {vl: now, formDt: formDt}
+    }
+
+    formatDate(dt, mer) {
+        dt[0] = this.checkAndFixZeros(dt[0]);
+        dt[1] = this.checkAndFixZeros(dt[1]);
+        dt[2] = mer;
+        return `${dt[0]+' : '+dt[1]}${" " + dt[2]}`;
     }
 
     normilizeDotDate(dt) {
@@ -130,7 +164,7 @@ class InputFields extends Component {
 
     componentWillReceiveProps(nextProps) {
         let {ids, byId, from, to} = nextProps;
-        if (!from || !to) return;
+        if (Object.keys(from).length === 0 || Object.keys(to).length === 0) return;
 
         let result;
         let overAll = to.diff(from, 'minutes');
@@ -149,7 +183,7 @@ class InputFields extends Component {
         return(
             <div>
                 <div className="dtInput">
-                    from:<input autoFocus={true} onFocus={(e) => e.target.select()} onBlur={this.handleInputSubmit} onKeyPress={(e) => this.checkInputKeyDown(e)} data-type="from"></input>
+                    from:<input onFocus={(e) => e.target.select()} onBlur={this.handleInputSubmit} onKeyPress={(e) => this.checkInputKeyDown(e)} data-type="from"></input>
                 </div>
                 <div className="dtInput">
                     to:<input onFocus={(e) => e.target.select()} onBlur={this.handleInputSubmit} onKeyPress={(e) => this.checkInputKeyDown(e)} data-type="to"></input>

@@ -8,9 +8,9 @@ import Cookies from 'js-cookie'
 
 const store = configureStore()
 
-if (!Cookies.get('state')) {
-  Cookies.set('state', store.getState().control, {expires: 2});
-} 
+// if (!Cookies.get('state')) {
+//   Cookies.set('state', store.getState().control, {expires: 2});
+// } 
 
 // store.subscribe(() => {
 //   let cookies = JSON.parse(Cookies.get('state'));  
@@ -19,7 +19,10 @@ if (!Cookies.get('state')) {
 // })
 
 store.subscribe(() => {
-  Cookies.set('ctrVal', document.querySelector('.ctrInput').value);
+  let state = store.getState();
+  Cookies.set('ctrVal', document.querySelector('.ctrInput').value, {expires: 1});
+  if (Object.keys(state.to).length === 0 || Object.keys(state.from).length === 0) return;
+  Cookies.set('dt', {from:store.getState().from, to:store.getState().to}, {expires: 1})
 })
 
 

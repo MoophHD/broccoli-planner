@@ -28,7 +28,8 @@ class Controller extends Component {
         this.lastValue = '';
         this.lastById = '';
         if (Cookies.get('ctrVal')) {
-            this.setState({value: Cookies.get('ctrVal')});
+            this.input.value = Cookies.get('ctrVal');
+            this.handleInputChange({target: this.input});
             this.lastValue = Cookies.get('ctrVal');
         }
         
@@ -46,10 +47,17 @@ class Controller extends Component {
     }
 
 
+    handleInputChange(e) {
+        this.lastCursorPos = e.target.selectionEnd;
+        this.setState({value: e.target.value},function() {this.checkVal()}.bind(this));
+    }
+
     checkVal() {
         let inpStrChuncks = this.state.value.match(this.reg.chunck);
+
         if (!inpStrChuncks) inpStrChuncks = [];
         if (!this.oldinpStrChuncks ) this.oldinpStrChuncks = [];
+
         if (inpStrChuncks.length == this.oldinpStrChuncks.length && 
             JSON.stringify(inpStrChuncks) == JSON.stringify(this.oldinpStrChuncks)) {
             return;
@@ -76,10 +84,6 @@ class Controller extends Component {
         this.props.npActions.rebuildChuncks(chuncks, ids);
     }
 
-    handleInputChange(e) {
-        this.lastCursorPos = e.target.selectionEnd;
-        this.setState({value: e.target.value},function() {this.checkVal()}.bind(this));
-    }
 
     checkEnter(e) {
         if (e.key == "Enter") {
