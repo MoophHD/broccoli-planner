@@ -76,6 +76,7 @@ body {
   min-height: 500px;
   font-size: 1.25em;
   color: #333;
+  line-height: 1.2;
   /* outline-color: crimson; */
 }
 
@@ -108,6 +109,7 @@ body {
   width: 65%;
   font-size: 1em;
   font-family: 'Roboto', sans-serif;
+  font-weight: 400;
   border: none;
   background-color: #f1f1f1;
   padding: 5px 10px;
@@ -124,6 +126,11 @@ body {
 .dtInput.total input {
   text-align: center;
 } 
+  
+.dtInput.active {
+  background: linear-gradient(to bottom, #fff 0px, crimson 0px, crimson 22px, #fff 22px);
+  background-attachment: local;
+}
 
 .cookieBtn {
   padding: 10px;
@@ -134,3 +141,4 @@ body {
   top:0;
   left: 0;
 }
+

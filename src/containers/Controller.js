@@ -3,8 +3,7 @@ import React, {Component} from 'react';
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
 import moment from 'moment';
-import * as npActions from '../actions/npActions'
-import * as chActions from '../actions/chunckActions'
+import * as pageActions from '../actions/pageActions'
 import Cookies from 'js-cookie'
 import InputFields from '../components/InputFields'
 import regLastMatched from '../gist/regLastMatched'
@@ -42,19 +41,18 @@ class Controller extends Component {
         }
         
         this.input.spellcheck = false;
-        window.addEventListener('beforeunload', () => this.handleUnload())
+        window.addEventListener('beforeunload', () => this.handleUnload(this.input.value))
         this.input.addEventListener("blur",() => this.checkVal());
         this.input.addEventListener("keyup", (e) => this.checkEnter(e));
 
         this.handleUnload = this.handleUnload.bind(this);
     }
 
-    handleUnload() {
-        if (document.querySelector('ctrInput').value.length > 0) {
+    handleUnload(vl) {
+        if (this.state.value.length > 0) {
             Cookies.set('ctrVal', this.state.value, {expires: 1});
         }
     }
-
 
     handleInputChange(e) {
         this.lastCursorPos = e.target.selectionEnd;
@@ -91,7 +89,7 @@ class Controller extends Component {
             chuncks[ids[ind]].order = ind;
         })
         ids = ids.slice(0, inpStrChuncks.length);
-        this.props.npActions.rebuildChuncks(chuncks, ids);
+        this.props.pageActions.rebuildChuncks(chuncks, ids);
     }
 
 
@@ -140,12 +138,35 @@ class Controller extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (Object.keys(this.props.byId).length == Object.keys(nextProps.byId).length && // resorted
-            this.lastById && this.lastById != JSON.stringify(nextProps.byId)) {
+        // if (Object.keys(this.props.byId).length == Object.keys(nextProps.byId).length && // resorted
+        //     this.lastById && this.lastById != JSON.stringify(nextProps.byId)) {
+        //     this.syncInput(nextProps);
+        // }
+
+        if (this.lastById && this.lastById != JSON.stringify(nextProps.byId)) {
             this.syncInput(nextProps);
         }
         
         this.lastById = JSON.stringify(nextProps.byId);
+    }
+
+    componentDidUpdate(prevProps) {
+        let el = this.input;
+        let top = el.offsetTop;
+        let scrollT = el.scrollTop;
+        let unit = top;
+
+        var span = document.createElement("span");
+        document.body.appendChild(span);
+        span.classList.add('ctrInput');
+        span.innerHTML="Hello World"; 
+        let lnHeight = span.offsetHeight;
+        document.body.removeChild(span);
+        
+        // console.log(lnHeight);
+        // if (prevProps.activeId != this.props.activeId) {
+
+        // }
     }
 
     render() {
@@ -163,14 +184,14 @@ function mapStateToProps(state) {
       byId: state.chuncksByID,
       ids: state.chuncksIDs,
       from: state.from,
-      to: state.to
+      to: state.to,
+      activeId: state.activeChunckId
     }
   }
   
   function mapDispatchToProps(dispatch) {
     return {
-        npActions: bindActionCreators(npActions, dispatch), // eslint-disable-line
-        chActions: bindActionCreators(chActions, dispatch)
+        pageActions: bindActionCreators(pageActions, dispatch) 
     }
   }
   

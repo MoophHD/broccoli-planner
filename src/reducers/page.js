@@ -1,36 +1,25 @@
-import{
-  ADD_CHUNCK, 
-  CLEAR_CHUNCKS,
-  SET_ORDER,
-  REBUILD_CHUNCKS
-  } from '../constants/core'
-
-import {
-  CHANGE_NAME,
-  CHANGE_DUR,
-  SET_ACTIVE_CHUNCK
-} from '../constants/chunck'
-
-import {
-  SET_DT,
-  ClEAR_DT
-} from '../constants/dt'
-import moment from 'moment'; // eslint-disable-line
+import 
+    {ADD_CHUNCK, 
+    SET_ACTIVE_CHUNCK,
+    CLEAR_CHUNCKS,
+    SET_ORDER,
+    CHANGE_NAME,
+    REBUILD_CHUNCKS,
+    CHANGE_DUR} from '../constants/core'
+import moment from 'moment' // eslint-disable-line
 
 
 let initialState = {
-  chuncksByID: {},
-  chuncksIDs: [],
-  from: {},
-  to: {},
-  activeChunckId: -1
+    chuncksByID: {},
+    chuncksIDs: [],
+    activeChunckId: -1
 }
 
 let id, order, ids, byId
-export default function index(state=initialState, action) {
+export default function page(state=initialState, action) {
 switch (action.type) {
     case SET_ACTIVE_CHUNCK:
-      return {...state, activeChunckId: action.payload}
+        return {...state, activeChunckId: action.payload}
     case REBUILD_CHUNCKS:
         ({byId, ids} = rebuildChuncks(action.byId, action.ids, state.from));
         return {...state, chuncksByID:byId, chuncksIDs:ids}
@@ -58,18 +47,6 @@ switch (action.type) {
         _byId[action.to].order =action.fromInd;
        ({byId, ids} = rebuildChuncks(_byId, [...state.chuncksIDs], state.from));
         return {...state, chuncksByID:byId, chuncksIDs:ids}
-    case ClEAR_DT:
-          return {...state, from: {}, to:{}}
-    case SET_DT :
-        if (action.dtType == "from") {
-            ({byId, ids} = rebuildChuncks({...state.chuncksByID}, [...state.chuncksIDs], action.payload));
-            return {...state, [action.dtType]: action.payload,
-                chuncksByID: byId,
-                chuncksIDs: ids}
-        } else {
-            return {...state, [action.dtType]: action.payload}
-        }
-        break;
     case CHANGE_DUR:
         id = action.id;
         byId = moveChunckDt(state.chuncksIDs.indexOf(id), {...state.chuncksByID}, [...state.chuncksIDs], action.dur - state.chuncksByID[id].duration)

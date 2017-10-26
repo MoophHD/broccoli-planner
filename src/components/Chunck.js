@@ -1,6 +1,9 @@
 /* eslint-disable */
 import React, {Component} from 'react'
-import moment from 'moment' // eslint-disable-line 
+import moment from 'moment'
+import * as actions from '../actions/chunckActions'
+import { bindActionCreators } from 'redux' 
+import { connect } from 'react-redux'
 
 
 class Chunck extends Component {
@@ -37,9 +40,9 @@ class Chunck extends Component {
                 return;
             }
         }
-        
-        if ( nowDur > fromDur && nowDur < toDur) {
+        if ( nowDur > fromDur && nowDur < toDur) { // is active
             this.setActiveStyles();
+            if (this.props.id != this.props.activeId) this.props.actions.setActiveChunck(this.props.id);
         } else if (nowDur > toDur) {
             clearInterval(this.intervalId);
         }
@@ -74,10 +77,23 @@ class Chunck extends Component {
                 <div>{from}</div>
                 <div>{to}</div>
                 <div>{name}</div>
-                <div>{order}</div>
             </div>
         )
     }
 }
 
-export default Chunck;
+function mapStateToProps(state) {
+    return {
+      activeId: state.activeChunckId
+    }
+  }
+  
+
+function mapDispatchToProps(dispatch) {
+    return {
+        actions: bindActionCreators(actions, dispatch) // eslint-disable-line
+    }
+}
+  
+
+export default connect(mapStateToProps, mapDispatchToProps)(Chunck)

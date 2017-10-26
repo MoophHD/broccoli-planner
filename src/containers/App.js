@@ -2,7 +2,8 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
-import * as npActions from '../actions/npActions'
+import * as pageActions from '../actions/pageActions'
+import * as dtActions from '../actions/dtActions'
 
 import Chunck from '../components/Chunck'
 import Controller from './Controller'
@@ -14,6 +15,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.sortableContainer = this.sortableContainer.bind(this);
+    this.clear = this.clear.bind(this);
   }
 
   componentWillReceiveProps() {
@@ -41,17 +43,22 @@ class App extends Component {
       })
   }
 
-  clearCookies() {
+  clear() {
+
     document.querySelector('[data-type=from]').value = '';
     document.querySelector('[data-type=to]').value = '';
-    document.querySelector('.ctrInput').value = '';
+
     Cookies.remove('ctrVal');
+    Cookies.remove('dt', {path: '/'});
     Cookies.remove('dt');
+
+    this.props.actions.clearChuncks();
+    this.props.dtActions.clearDt();
   }
 
   render() {
     const {actions} = this.props;
-    const { byID, ids } = this.props;
+    const { byID, ids, activeId } = this.props;
 
     let chuncks = ids.map((id, ind) => {
       let curr = byID[id];
@@ -69,7 +76,7 @@ class App extends Component {
 
     return (
       <div >
-        <button className="cookieBtn" onClick={this.clearCookies}></button>
+        <button className="cookieBtn" onClick={this.clear}></button>
         <Controller />
       <div ref={this.sortableContainer} id="sortable" className="chunckContainer">
         {chuncks}
@@ -86,7 +93,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(npActions, dispatch) // eslint-disable-line
+    actions: bindActionCreators(pageActions, dispatch), // eslint-disable-line
+    dtActions : bindActionCreators(dtActions, dispatch)
   }
 }
 

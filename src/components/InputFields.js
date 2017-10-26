@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import * as actions from '../actions/pageActions';
+import * as actions from '../actions/dtActions';
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
 import moment from 'moment'
@@ -34,8 +34,8 @@ class InputFields extends Component {
     }
 
     handleUnload() {
-        if (document.querySelector('[data-type=from]').value.length > 0 &&
-            document.querySelector('[data-type=to]').value.length > 0) {
+        if (Object.keys(this.props.from).length != 0 &&
+            Object.keys(this.props.to).length != 0) {
                 Cookies.set('dt', {from:this.props.from, to:this.props.to})
             }
     }
