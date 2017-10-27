@@ -7,22 +7,24 @@ import * as pageActions from '../actions/pageActions'
 import Cookies from 'js-cookie'
 import InputFields from '../components/InputFields'
 import regLastMatched from '../gist/regLastMatched'
+import StaticController from '../components/StaticController'
 
 class Controller extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {value: ''};
+        this.state = {value: '', isAreaActive:true};
         this.handleInputChange = this.handleInputChange.bind(this);
         this.checkEnter = this.checkEnter.bind(this);
         this.checkVal = this.checkVal.bind(this);
+        this.toggleArea = this.toggleArea.bind(this);
     }
 
     componentWillMount() {
         this.oldinpStrChuncks = [];
     }
-        
     componentDidMount() {
+        this.lastActiveId = -1;
         this.lastCursorPos = 0;
         this.lastValue = '';
         this.lastById = '';
@@ -39,7 +41,7 @@ class Controller extends Component {
             fullDur : /\ \d{1,2}\.\d{1,2}/g,
             inpSplit : /\n/
         }
-        
+
         this.input.spellcheck = false;
         window.addEventListener('beforeunload', () => this.handleUnload(this.input.value))
         this.input.addEventListener("blur",() => this.checkVal());
@@ -49,7 +51,7 @@ class Controller extends Component {
     }
 
     handleUnload(vl) {
-        if (this.state.value.length > 0) {
+        if (this.state.value.length > 0 && this.props.ids.length > 0) {
             Cookies.set('ctrVal', this.state.value, {expires: 1});
         }
     }
@@ -92,7 +94,6 @@ class Controller extends Component {
         this.props.pageActions.rebuildChuncks(chuncks, ids);
     }
 
-
     checkEnter(e) {
         if (e.key == "Enter") {
             if (Object.keys(this.props.to).length ===  0|| Object.keys(this.props.from).length === 0) {
@@ -101,7 +102,6 @@ class Controller extends Component {
                 return;
             }
         }
-
     }
 
     addMoment(dur) {
@@ -138,42 +138,40 @@ class Controller extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        // if (Object.keys(this.props.byId).length == Object.keys(nextProps.byId).length && // resorted
-        //     this.lastById && this.lastById != JSON.stringify(nextProps.byId)) {
-        //     this.syncInput(nextProps);
-        // }
-
         if (this.lastById && this.lastById != JSON.stringify(nextProps.byId)) {
             this.syncInput(nextProps);
         }
-        
+
+        if (nextProps.activeId != this.lastActiveId) {
+            if (!this.props.byId[nextProps.activeId]) return;
+            let target = document.querySelector(`.staticChunck[data-order="${this.props.byId[nextProps.activeId].order}"]`);
+            if (!target) return;
+
+            if(this.lastActiveStaticChunck ) this.lastActiveStaticChunck.classList.remove('active');
+
+            target.classList.add('active');
+            this.lastActiveStaticChunck = target;
+            
+        }
+
         this.lastById = JSON.stringify(nextProps.byId);
     }
 
-    componentDidUpdate(prevProps) {
-        let el = this.input;
-        let top = el.offsetTop;
-        let scrollT = el.scrollTop;
-        let unit = top;
-
-        var span = document.createElement("span");
-        document.body.appendChild(span);
-        span.classList.add('ctrInput');
-        span.innerHTML="Hello World"; 
-        let lnHeight = span.offsetHeight;
-        document.body.removeChild(span);
-        
-        // console.log(lnHeight);
-        // if (prevProps.activeId != this.props.activeId) {
-
-        // }
+    componentDidUpdate() {
+        if (this.props.isAreaActive) this.input.focus();
     }
+
+    toggleArea() {
+        this.props.pageActions.toggleAreaType();
+    }
+    
 
     render() {
         return(
             <div className="controller">
                 <InputFields />
-                <textarea onChange={this.handleInputChange} value={this.state.value} ref={(el) => this.input = el} className="ctrInput" />
+                <textarea style={{display:this.props.isAreaActive ? "block" : "none"}} onBlur={this.toggleArea} onChange={this.handleInputChange} value={this.state.value} ref={(el) => this.input = el} className="ctrInput" />
+                <StaticController isActive={!this.props.isAreaActive} handleClick={this.toggleArea} chuncks={this.state.value.split('\n')}/>
             </div>
         )
     }
@@ -185,7 +183,8 @@ function mapStateToProps(state) {
       ids: state.chuncksIDs,
       from: state.from,
       to: state.to,
-      activeId: state.activeChunckId
+      activeId: state.activeChunckId,
+      isAreaActive: state.isAreaActive
     }
   }
   

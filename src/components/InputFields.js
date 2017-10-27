@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as actions from '../actions/dtActions';
+import * as pageActions from '../actions/pageActions';
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
 import moment from 'moment'
@@ -49,7 +50,8 @@ class InputFields extends Component {
         if (e.target.dataset.type == "from") {
             document.querySelector('[data-type=to]').focus();
         } else if (e.target.dataset.type == "to") {
-            document.querySelector('.ctrInput').focus();
+            this.props.pageActions.toggleAreaType();
+            // document.querySelector('.ctrInput').focus();
         }
     }
 
@@ -206,7 +208,8 @@ function mapStateToProps(state) {
   
 function mapDispatchToProps(dispatch) {
     return {
-        actions: bindActionCreators(actions, dispatch) // eslint-disable-line
+        actions: bindActionCreators(actions, dispatch), 
+        pageActions: bindActionCreators(pageActions, dispatch) 
     }
 }
   

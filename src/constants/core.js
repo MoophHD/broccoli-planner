@@ -3,3 +3,4 @@ export const CLEAR_CHUNCKS = 'CLEAR_CHUNCKS';
 export const SET_ORDER = 'SET_ORDER';
 export const REBUILD_CHUNCKS = 'REBUILD_CHUNCKS';
 export const SET_ACTIVE_CHUNCK = 'SET_ACTIVE_CHUNCK';
+export const TOGGLE_AREA_TYPE = 'TOGGLE_AREA_TYPE';

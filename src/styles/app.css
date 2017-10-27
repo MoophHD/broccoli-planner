@@ -80,6 +80,14 @@ body {
   /* outline-color: crimson; */
 }
 
+.staticChunck {
+  display: block;
+}
+
+.staticChunck.active {
+  color:crimson;
+}
+
 .dtInput {
   display: inline-block;
   width: 135px;

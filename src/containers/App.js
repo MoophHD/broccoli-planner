@@ -35,9 +35,9 @@ class App extends Component {
       animation: 100,
     	onEnd: function (e) {
         if (e.newIndex == e.oldIndex) return;
-        let itemEl = document.querySelector(`[data-order="${e.oldIndex}"]`);
+        let itemEl = document.querySelector(`.chunck[data-order="${e.oldIndex}"]`);
         let replacedInd = e.newIndex;
-        let replacedElemId = document.querySelector(`[data-order="${replacedInd}"]`).dataset.id;
+        let replacedElemId = document.querySelector(`.chunck[data-order="${replacedInd}"]`).dataset.id;
         this.props.actions.setOrder(itemEl.dataset.id, replacedElemId, e.oldIndex, e.newIndex);
       }.bind(this)
       })
@@ -47,6 +47,8 @@ class App extends Component {
 
     document.querySelector('[data-type=from]').value = '';
     document.querySelector('[data-type=to]').value = '';
+    document.querySelector('div.ctrInput').innerHTML = "";
+    document.querySelector('textarea.ctrInput').value = "";
 
     Cookies.remove('ctrVal');
     Cookies.remove('dt', {path: '/'});

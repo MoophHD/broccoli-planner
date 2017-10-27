@@ -2,7 +2,8 @@ import
     {ADD_CHUNCK,
     CLEAR_CHUNCKS,
     SET_ORDER,
-    REBUILD_CHUNCKS
+    REBUILD_CHUNCKS,
+    TOGGLE_AREA_TYPE
     } from '../constants/core'
 
 let nextChunckId = 0;
@@ -43,3 +44,8 @@ export function rebuildChuncks(byId, ids) {
     }
 }
 
+export function toggleAreaType() {
+    return {
+        type:TOGGLE_AREA_TYPE
+    }
+}

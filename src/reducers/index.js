@@ -2,12 +2,12 @@ import{
   ADD_CHUNCK, 
   CLEAR_CHUNCKS,
   SET_ORDER,
-  REBUILD_CHUNCKS
+  REBUILD_CHUNCKS,
+  TOGGLE_AREA_TYPE
   } from '../constants/core'
 
 import {
   CHANGE_NAME,
-  CHANGE_DUR,
   SET_ACTIVE_CHUNCK
 } from '../constants/chunck'
 
@@ -23,12 +23,15 @@ let initialState = {
   chuncksIDs: [],
   from: {},
   to: {},
-  activeChunckId: -1
+  activeChunckId: -1,
+  isAreaActive: false
 }
 
 let id, order, ids, byId
 export default function index(state=initialState, action) {
 switch (action.type) {
+    case TOGGLE_AREA_TYPE:
+        return {...state, isAreaActive:!state.isAreaActive}
     case SET_ACTIVE_CHUNCK:
       return {...state, activeChunckId: action.payload}
     case REBUILD_CHUNCKS:
@@ -70,10 +73,6 @@ switch (action.type) {
             return {...state, [action.dtType]: action.payload}
         }
         break;
-    case CHANGE_DUR:
-        id = action.id;
-        byId = moveChunckDt(state.chuncksIDs.indexOf(id), {...state.chuncksByID}, [...state.chuncksIDs], action.dur - state.chuncksByID[id].duration)
-        return {...state, chuncksByID:byId}
     default:
         return state
 }
@@ -87,44 +86,36 @@ return ids;
 }
 
 function rebuildChuncks(byId={}, ids=[], from) {
-ids = reorderIds(ids, byId);
-let anchorFrom = from;
-ids.forEach(function(id) {
-    let ch = byId[id];
-    let dur;
+    ids = reorderIds(ids, byId);
+    if (Object.keys(from).length === 0) return {byId:{}, ids:[]};
 
-    if (/\.\d{2}/.test(ch.duration)) {
-        dur = 60*~~(ch.duration)+ch.duration%1*100;
-    } else {
-        dur = 60*ch.duration;
-    }
-    dur = Math.round(dur);
+    let anchorFrom = from;
 
-    let anchorTo = anchorFrom.clone().add(dur, 'minutes');
-    if (!ch.from || !ch.to) {
-        byId[id].from = anchorFrom;
-        byId[id].to = anchorTo;
-    } else if(!ch.from.isSame(anchorFrom) && !ch.to.isSame(anchorTo))  {
-        byId[id].from = anchorFrom;
-        byId[id].to = anchorTo;
-    } else if (!ch.from.isSame(anchorFrom)) {
-        byId[id].from = anchorFrom;
-    } else if (!ch.to.isSame(anchorTo)) {
-        byId[id].to = anchorTo;
-    }
-    anchorFrom = anchorTo;
-});
+    ids.forEach(function(id) {
+        let ch = byId[id];
+        let dur;
 
-return {byId:byId, ids:ids};
-}
+        if (/\.\d{2}/.test(ch.duration)) {
+            dur = 60*~~(ch.duration)+ch.duration%1*100;
+        } else {
+            dur = 60*ch.duration;
+        }
+        dur = Math.round(dur);
 
+        let anchorTo = anchorFrom.clone().add(dur, 'minutes');
+        if (!ch.from || !ch.to) {
+            byId[id].from = anchorFrom;
+            byId[id].to = anchorTo;
+        } else if(!ch.from.isSame(anchorFrom) && !ch.to.isSame(anchorTo))  {
+            byId[id].from = anchorFrom;
+            byId[id].to = anchorTo;
+        } else if (!ch.from.isSame(anchorFrom)) {
+            byId[id].from = anchorFrom;
+        } else if (!ch.to.isSame(anchorTo)) {
+            byId[id].to = anchorTo;
+        }
+        anchorFrom = anchorTo;
+    }); 
 
-function moveChunckDt(start, byid, ids, diff) {
-byid[ids[start]].duration += diff;
-diff = diff * 60; // to mins
-byid[ids[start]].to.add(diff, 'minutes');
-for (let i = start+1; i < ids.length; i++) {
-    byid[ids[i]].to.add(diff, 'minutes');
-}
-return byid;
+    return {byId:byId, ids:ids};
 }

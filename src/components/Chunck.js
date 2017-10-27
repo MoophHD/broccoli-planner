@@ -59,13 +59,13 @@ class Chunck extends Component {
         this.cont.style.color = this.inActiveStyles.color;
     }
 
-    componentWillReceiveProps(nextProps) {
-        setTimeout(() => this.forceUpdate(), 0);
-    }
+    // componentWillReceiveProps(nextProps) {
+    //     setTimeout(() => this.forceUpdate(), 0);
+    // }
 
-    componentDidMount() {
-        setTimeout(() => this.forceUpdate(), 0);
-    }
+    // componentDidMount() {
+    //     setTimeout(() => this.forceUpdate(), 0);
+    // }
 
     render() {
         let {from, to, name, order, id} = this.props;
