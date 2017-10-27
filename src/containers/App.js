@@ -43,16 +43,19 @@ class App extends Component {
       })
   }
 
-  clear() {
+  clear(e) {
+    let target = e.target;
+    if (target) {
+      if (target.tagName == "I") target=target.parentNode;
+      target.classList.add('pulse');
+      setTimeout(()=>target.classList.remove('pulse'), 500);
+    }
 
-    document.querySelector('[data-type=from]').value = '';
-    document.querySelector('[data-type=to]').value = '';
-    document.querySelector('div.ctrInput').innerHTML = "";
     document.querySelector('textarea.ctrInput').value = "";
-
     Cookies.remove('ctrVal');
     Cookies.remove('dt', {path: '/'});
     Cookies.remove('dt');
+
 
     this.props.actions.clearChuncks();
     this.props.dtActions.clearDt();
@@ -66,7 +69,7 @@ class App extends Component {
       let curr = byID[id];
       return (
         <Chunck 
-          key={`_chunck${id}${curr.order}${Math.random()}`}  //${Math.random()}
+          key={`_chunck${id}${curr.order}}`}  //${Math.random()}
           name={curr.name}
           from={curr.from}
           to={curr.to}
@@ -75,10 +78,13 @@ class App extends Component {
           />
       )
     })
+    
 
     return (
       <div >
-        <button className="cookieBtn" onClick={this.clear}></button>
+        <a onClick={this.clear} className="btn btn-default reloadBtn"  >
+          <i className="fa fa-refresh" aria-hidden="true"></i>
+        </a>
         <Controller />
       <div ref={this.sortableContainer} id="sortable" className="chunckContainer">
         {chuncks}

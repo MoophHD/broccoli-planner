@@ -74,9 +74,9 @@ class Chunck extends Component {
 
         return (
             <div ref={this.setStuff} data-id={id} data-order={order} className="chunck">
-                <div>{from}</div>
-                <div>{to}</div>
-                <div>{name}</div>
+                <div className="chunckFrom">{from}</div>
+                <div className="chunckTo">{to}</div>
+                <div className="chunckName">{name}</div>
             </div>
         )
     }

@@ -51,7 +51,6 @@ class InputFields extends Component {
             document.querySelector('[data-type=to]').focus();
         } else if (e.target.dataset.type == "to") {
             this.props.pageActions.toggleAreaType();
-            // document.querySelector('.ctrInput').focus();
         }
     }
 
@@ -143,8 +142,7 @@ class InputFields extends Component {
     formatDate(dt, mer) {
         dt[0] = this.checkAndFixZeros(dt[0]);
         dt[1] = this.checkAndFixZeros(dt[1]);
-        dt[2] = mer;
-        return `${dt[0]+' : '+dt[1]}${" " + dt[2]}`;
+        return `${dt[0]+' : '+dt[1]}${" " + mer}`;
     }
 
     normilizeDotDate(dt) {
@@ -165,18 +163,24 @@ class InputFields extends Component {
 
     componentWillReceiveProps(nextProps) {
         let {ids, byId, from, to} = nextProps;
-        if (Object.keys(from).length === 0 || Object.keys(to).length === 0) return;
+        if (Object.keys(from).length === 0 || Object.keys(to).length === 0) {
+            if (Object.keys(from).length === 0) document.querySelector('[data-type=from]').value = "";
+            if (Object.keys(to).length === 0) document.querySelector('[data-type=to]').value = "";
+            
+            this.setState(() => {return {spare:""}})
+            return;
+        }
 
         let result;
-        let overAll = to.diff(from, 'minutes');
+        let overAll = to.diff(from, 'seconds');
         let fullfilled = 0; // in minutes
 
         ids.forEach(function(id) {
-            fullfilled += byId[id].to.diff(byId[id].from, 'minutes');
+            fullfilled += byId[id].to.diff(byId[id].from, 'seconds');
         });
-
-        result = Math.round(overAll - fullfilled);
-
+        console.log(overAll - fullfilled);
+        result = Math.round((overAll - fullfilled)/60);
+        console.log(result);
         this.setState(() => {return {spare:`${~~(result/60)}h${result%60}m`}})
     }
 

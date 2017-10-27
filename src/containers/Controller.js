@@ -43,7 +43,7 @@ class Controller extends Component {
         }
 
         this.input.spellcheck = false;
-        window.addEventListener('beforeunload', () => this.handleUnload(this.input.value))
+        window.addEventListener('beforeunload', function() {this.handleUnload(this.state.value)}.bind(this) )
         this.input.addEventListener("blur",() => this.checkVal());
         this.input.addEventListener("keyup", (e) => this.checkEnter(e));
 
@@ -51,8 +51,8 @@ class Controller extends Component {
     }
 
     handleUnload(vl) {
-        if (this.state.value.length > 0 && this.props.ids.length > 0) {
-            Cookies.set('ctrVal', this.state.value, {expires: 1});
+        if (vl > 0 && this.props.ids.length > 0) {
+            Cookies.set('ctrVal', vl, {expires: 1});
         }
     }
 
@@ -138,7 +138,7 @@ class Controller extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (this.lastById && this.lastById != JSON.stringify(nextProps.byId)) {
+        if (!this.props.isAreaActive && this.lastById && this.lastById != JSON.stringify(nextProps.byId)) {
             this.syncInput(nextProps);
         }
 

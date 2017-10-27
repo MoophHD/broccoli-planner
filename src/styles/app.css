@@ -3,6 +3,7 @@
 }
 
 body {
+  font-weight: 300;
   line-height: 1.45;
   font-size: 14px;
   padding-left: 10px;
@@ -67,6 +68,7 @@ body {
 .ctrInput {
   margin-top: 15px;
   font-family: 'Roboto', sans-serif;
+  font-weight: 300;
   border: none;
   resize: none;
   background-color: #f1f1f1;
@@ -122,6 +124,12 @@ body {
   background-color: #f1f1f1;
   padding: 5px 10px;
   transition:  all ease .2s;
+  font-weight: 300;
+}
+
+.chunckFrom,
+.chunckTo {
+  font-weight: 400;
 }
 
 .dtInput input:focus {
@@ -132,21 +140,49 @@ body {
 } 
 
 .dtInput.total input {
+  font-weight: 400;
   text-align: center;
 } 
-  
-.dtInput.active {
-  background: linear-gradient(to bottom, #fff 0px, crimson 0px, crimson 22px, #fff 22px);
-  background-attachment: local;
-}
 
-.cookieBtn {
-  padding: 10px;
+.reloadBtn {
+  position: relative;
+  border-radius: 50%;
+  color: #333;
+  padding: 2px;
   background-color: transparent;
   border: none;
-
   position: absolute;
   top:0;
   left: 0;
+  width: 25px;
+  height: 25px;
+}
+
+.reloadBtn > i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.pulse {
+  /* animation-iteration-count: infinite; */
+  animation-duration: 0.5s;
+  animation-name: pulse;
+  animation-timing-function: ease;
+}
+
+@keyframes pulse {
+  0% {
+    background-color: crimson;
+    box-shadow: 0 0 0 0 rgba(220, 20, 60, 0.4);
+  }
+  70% {
+    /* background-color: rgba(220, 20, 60, 0.4); */
+    box-shadow: 0 0 0 10px rgba(220, 20, 60, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 20, 60, 0);
+  }
 }
 
