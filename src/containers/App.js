@@ -25,8 +25,14 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log('willmount');
-    this.setState(() => {return {ids:nextProps.ids, byid:nextProps.byid}})
+    this.setState(() => {return {ids:nextProps.ids, byid:nextProps.byid}} /*,
+    () => {
+      if (this.props.activeId != nextProps.activeId) {
+        let order = nextProps.byid[nextProps.activeId].order;
+        this.sortableContainer.scrollTop = 65*order - this.sortableContainer.offsetHeight/2;//65
+      }
+    }*/)
+
   } 
 
   sortableContainer(cont) {
@@ -88,8 +94,6 @@ class App extends Component {
   render() {
     const {actions} = this.props;
     const { byid, ids } = this.state;
-    console.log('render');
-    console.log(ids);    
 
     let chuncks = ids.map((id, ind) => {
       return (
@@ -115,7 +119,8 @@ class App extends Component {
 function mapStateToProps(state) {
   return {
     byid: state.chuncksByID,
-    ids: state.chuncksIDs
+    ids: state.chuncksIDs,
+    activeId: state.activeChunckId
   }
 }
 
