@@ -51,6 +51,7 @@ class InputFields extends Component {
             document.querySelector('[data-type=to]').focus();
         } else if (e.target.dataset.type == "to") {
             this.props.pageActions.toggleAreaType();
+            document.querySelector('textarea.ctrInput').focus();
         }
     }
 
@@ -178,9 +179,7 @@ class InputFields extends Component {
         ids.forEach(function(id) {
             fullfilled += byId[id].to.diff(byId[id].from, 'seconds');
         });
-        console.log(overAll - fullfilled);
         result = Math.round((overAll - fullfilled)/60);
-        console.log(result);
         this.setState(() => {return {spare:`${~~(result/60)}h${result%60}m`}})
     }
 

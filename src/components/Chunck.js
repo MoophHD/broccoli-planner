@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, {Component} from 'react'
 import moment from 'moment'
 import * as actions from '../actions/chunckActions'
@@ -10,6 +9,41 @@ class Chunck extends Component {
     constructor(props) {
         super(props);
         this.setStuff = this.setStuff.bind(this);
+
+        let id = props.id;
+        let thisCh = props.byid[id];
+
+        this.state = {
+            id: id,
+            from: thisCh.from,
+            to: thisCh.to,
+            order: thisCh.order,
+            name: thisCh.name
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+
+        let id = nextProps.id;
+        let thisCh = nextProps.byid[id];
+
+        this.setState(() => { 
+        return {
+            id: id,
+            from: thisCh.from,
+            to: thisCh.to,
+            order: thisCh.order,
+            name: thisCh.name
+        }})
+
+
+        let ids = nextProps.ids;
+        if (nextProps.id == ids[0] || ids[ids.indexOf(nextProps.activeId)+1] == nextProps.id) { //if 1st or after active
+            this.intervalId = setInterval(() => this.checkActive(), 1000)
+        } else if (this.intervalId) {
+            clearInterval(this.intervalId);
+            this.resetStyles();
+        }
     }
 
     setStuff(container) {
@@ -20,7 +54,6 @@ class Chunck extends Component {
         this.inActiveStyles = {color: this.cont.style.color, bgColor: this.cont.style.backgroundColor}
         this.active = false;
         this.checkActive();
-        this.intervalId = setInterval(() => this.checkActive(), 10000)
     }
 
     checkActive() {
@@ -43,11 +76,11 @@ class Chunck extends Component {
         if ( nowDur > fromDur && nowDur < toDur) { // is active
             this.setActiveStyles();
             if (this.props.id != this.props.activeId) this.props.actions.setActiveChunck(this.props.id);
-        } else if (nowDur > toDur) {
-            clearInterval(this.intervalId);
         }
     }
 
+
+    
     setActiveStyles() {
         this.active = true;
         this.cont.style.backgroundColor = this.activeStyles.bgColor;
@@ -59,16 +92,8 @@ class Chunck extends Component {
         this.cont.style.color = this.inActiveStyles.color;
     }
 
-    // componentWillReceiveProps(nextProps) {
-    //     setTimeout(() => this.forceUpdate(), 0);
-    // }
-
-    // componentDidMount() {
-    //     setTimeout(() => this.forceUpdate(), 0);
-    // }
-
     render() {
-        let {from, to, name, order, id} = this.props;
+        let {from, to, name, order, id} = this.state;
         from = from.format('h:mm A');
         to = to.format('h:mm A');
 
@@ -84,7 +109,9 @@ class Chunck extends Component {
 
 function mapStateToProps(state) {
     return {
-      activeId: state.activeChunckId
+      activeId: state.activeChunckId,
+      ids: state.chuncksIDs,
+      byid: state.chuncksByID
     }
   }
   

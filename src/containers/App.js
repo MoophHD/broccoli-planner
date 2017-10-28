@@ -10,19 +10,23 @@ import Controller from './Controller'
 import Sortable from 'sortablejs'
 
 import Cookies from 'js-cookie'
+import moment from 'moment'
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.sortableContainer = this.sortableContainer.bind(this);
     this.clear = this.clear.bind(this);
+
+    this.state = {
+      ids: props.ids,
+      byid: props.byid
+    }
   }
 
-  componentWillReceiveProps() {
-    if (!this._container) return;
-
-    this._container.options.store;
-    
+  componentWillReceiveProps(nextProps) {
+    console.log('willmount');
+    this.setState(() => {return {ids:nextProps.ids, byid:nextProps.byid}})
   } 
 
   sortableContainer(cont) {
@@ -33,6 +37,26 @@ class App extends Component {
       ghostClass:"ghostChunck",
       chosenClass: "chosenChunck",
       animation: 100,
+      onSort: function (evt) {
+      setTimeout(()=> {
+        var oldId = evt.oldIndex,
+        newId = evt.newIndex,
+        reArrange = this._container.toArray(),
+        oldSort = this._container.toArray();
+
+        if (oldId < newId) {
+            for (var i = oldId; i < newId; i++)
+                reArrange[i+1] = oldSort[i];
+        } else {
+            for (var i = newId + 1; i <= oldId; i++)
+                reArrange[i-1] = oldSort[i];
+        }
+    
+        reArrange[oldId] = oldSort[newId];
+        this._container.sort(reArrange);
+
+      }, 0)
+        }.bind(this),
     	onEnd: function (e) {
         if (e.newIndex == e.oldIndex) return;
         let itemEl = document.querySelector(`.chunck[data-order="${e.oldIndex}"]`);
@@ -63,22 +87,18 @@ class App extends Component {
 
   render() {
     const {actions} = this.props;
-    const { byID, ids, activeId } = this.props;
+    const { byid, ids } = this.state;
+    console.log('render');
+    console.log(ids);    
 
     let chuncks = ids.map((id, ind) => {
-      let curr = byID[id];
       return (
         <Chunck 
-          key={`_chunck${id}${curr.order}}`}  //${Math.random()}
-          name={curr.name}
-          from={curr.from}
-          to={curr.to}
-          order={curr.order}
+          key={`_chunck${ind}`}  //${Math.random()}
           id={id}
           />
       )
-    })
-    
+    });
 
     return (
       <div >
@@ -94,7 +114,7 @@ class App extends Component {
 }
 function mapStateToProps(state) {
   return {
-    byID: state.chuncksByID,
+    byid: state.chuncksByID,
     ids: state.chuncksIDs
   }
 }
