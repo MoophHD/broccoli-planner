@@ -14,23 +14,31 @@ body {
 }
 
 .chunck {
+  display: grid;
+  grid-template-columns: 12.5% 12.5% 75%;
   transition: background-color ease .2s; /*all ease-in .1s, background-color ease .2s;*/
   background-color: #f1f1f1;
   margin-bottom: 25px;
   padding: 10px;
 }
 
+.chunckFrom,
+.chunckTo {
+  font-weight: 400;
+  margin: 0 auto;
+}
+
+.chunckName {
+  padding-left: 50px;
+  border-left: 2px solid rgb(206, 206, 206);
+}
+
 .ghostChunck {
   opacity: 0.4;
 }
 
-/* .chosenChunck {
-  background-color: rgb(230, 73, 104);
-} */
-
 .chunck > div {
   display: inline-block;
-  margin-right: 25px;
 }
 
 .chunckContainer {
@@ -127,10 +135,7 @@ body {
   font-weight: 300;
 }
 
-.chunckFrom,
-.chunckTo {
-  font-weight: 400;
-}
+
 
 .dtInput input:focus {
   text-align: justify;
@@ -186,3 +191,14 @@ body {
   }
 }
 
+.activityContainer {
+  z-index: 1000;
+  position: absolute;
+  padding: 10px;
+  width: 500px;
+  height: 500px;
+  background-color: #f1f1f1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

@@ -8,6 +8,7 @@ import * as dtActions from '../actions/dtActions'
 import Chunck from '../components/Chunck'
 import Controller from './Controller'
 import Sortable from 'sortablejs'
+import ActivityPanel from '../components/ActivityPanel'
 
 import Cookies from 'js-cookie'
 import moment from 'moment'
@@ -81,6 +82,7 @@ class App extends Component {
       setTimeout(()=>target.classList.remove('pulse'), 500);
     }
 
+    // document.querySelector('div.ctrInput').innerHTML = "";
     document.querySelector('textarea.ctrInput').value = "";
     Cookies.remove('ctrVal');
     Cookies.remove('dt', {path: '/'});
@@ -106,6 +108,7 @@ class App extends Component {
 
     return (
       <div >
+        <ActivityPanel />
         <a onClick={this.clear} className="btn btn-default reloadBtn"  >
           <i className="fa fa-refresh" aria-hidden="true"></i>
         </a>

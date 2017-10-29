@@ -1,8 +1,6 @@
-/* eslint-disable */ 
 import React, {Component} from 'react';
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
-import moment from 'moment';
 import * as pageActions from '../actions/pageActions'
 import Cookies from 'js-cookie'
 import InputFields from '../components/InputFields'
@@ -35,7 +33,7 @@ class Controller extends Component {
         }
         
         this.reg = {
-            chunck :/.+\ +\d{1,2}(\.\d{1,2})?$/gm,
+            chunck :/.+\ +\d{1,2}(\.\d{1,2})?($|\/\/)/gm,
             name : /.+?(?=(\ +\d))/g,
             duration : /\ (\d{1,2}(\.\d{1,2})?)/g,
             fullDur : /\ \d{1,2}\.\d{1,2}/g,
@@ -43,7 +41,7 @@ class Controller extends Component {
         }
 
         this.input.spellcheck = false;
-        window.addEventListener('beforeunload', function() {this.handleUnload(this.state.value)}.bind(this) )
+        window.addEventListener('beforeunload', function() {this.handleUnload(this.oldinpStrChuncks ? this.oldinpStrChuncks.join("\n") : '')}.bind(this) )
         this.input.addEventListener("blur",() => this.checkVal());
         this.input.addEventListener("keyup", (e) => this.checkEnter(e));
 
@@ -62,9 +60,9 @@ class Controller extends Component {
     }
 
     checkVal() {
-        Cookies.set('ctrVal', this.state.value, {expires: 1});
         let inpStrChuncks = this.state.value.match(this.reg.chunck);
-
+        Cookies.set('ctrVal',inpStrChuncks ? inpStrChuncks.join("\n") : '', {expires: 1});
+        
         if (!inpStrChuncks) inpStrChuncks = [];
         if (!this.oldinpStrChuncks ) this.oldinpStrChuncks = [];
 

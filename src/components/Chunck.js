@@ -42,7 +42,7 @@ class Chunck extends Component {
 
 
         let ids = nextProps.ids;
-        if (nextProps.id == ids[0] || ids[ids.indexOf(nextProps.activeId)+1] == nextProps.id) { //if 1st or after active
+        if (nextProps.id == ids[0] || id == nextProps.activeId) { //if 1st or after active
             this.intervalId = setInterval(() => this.checkActive(), 1000)
         }
     }
@@ -70,11 +70,11 @@ class Chunck extends Component {
             if (nowDur >= toDur || nowDur <= fromDur) {
                 clearInterval(this.intervalId);
                 this.resetStyles();
+                this.props.actions.setActiveChunck(this.props.ids[this.props.ids.indexOf(this.props.id)+1]);
                 return;
             }
         }
         if ( nowDur > fromDur && nowDur < toDur) { // is active
-            // if (!this.intervalId) this.intervalId = setInterval(() => this.checkActive(), 1000);
             if (!this.active) this.setActiveStyles();
             if (this.state.id != this.props.activeId) this.props.actions.setActiveChunck(this.props.id);
         }
