@@ -140,9 +140,12 @@ class Controller extends Component {
             this.syncInput(nextProps);
         }
 
-        if (nextProps.activeId != this.lastActiveId) {
+        let target;
+        if (nextProps.activeId == undefined) { // && this.lastActiveId != -1
+            this.lastActiveStaticChunck.classList.remove("active");
+        } else if ( nextProps.activeId != this.lastActiveId) {
             if (!this.props.byId[nextProps.activeId]) return;
-            let target = document.querySelector(`.staticChunck[data-order="${this.props.byId[nextProps.activeId].order}"]`);
+            target = document.querySelector(`.staticChunck[data-order="${this.props.byId[nextProps.activeId].order}"]`);
             if (!target) return;
 
             if(this.lastActiveStaticChunck ) this.lastActiveStaticChunck.classList.remove('active');

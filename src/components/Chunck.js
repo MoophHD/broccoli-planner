@@ -8,8 +8,6 @@ import { connect } from 'react-redux'
 class Chunck extends Component {
     constructor(props) {
         super(props);
-        this.setStuff = this.setStuff.bind(this);
-
         let id = props.id;
         let thisCh = props.byid[id];
 
@@ -24,6 +22,7 @@ class Chunck extends Component {
 
     componentDidMount() {
         this.checkActive();
+        this.active = false;
     }
 
     componentWillReceiveProps(nextProps) {
@@ -45,15 +44,6 @@ class Chunck extends Component {
         if (nextProps.id == ids[0] || id == nextProps.activeId) { //if 1st or after active
             this.intervalId = setInterval(() => this.checkActive(), 1000)
         }
-    }
-
-    setStuff(container) {
-        if (container == null) return;
-
-        this.cont = container;
-        this.activeStyles = {color: "white", bgColor: "Crimson"};
-        this.inActiveStyles = {color: this.cont.style.color, bgColor: this.cont.style.backgroundColor}
-        this.active = false;
     }
 
     checkActive() {
@@ -82,14 +72,12 @@ class Chunck extends Component {
 
     setActiveStyles() {
         this.active = true;
-        this.cont.style.backgroundColor = this.activeStyles.bgColor;
-        this.cont.style.color = this.activeStyles.color;
+        this.cont.classList.add("active");
     }
 
     resetStyles() {
         this.active = false;
-        this.cont.style.backgroundColor = this.inActiveStyles.bgColor;
-        this.cont.style.color = this.inActiveStyles.color;
+        this.cont.classList.remove("active");
     }
 
     render() {
@@ -98,7 +86,7 @@ class Chunck extends Component {
         to = to.format('h:mm A');
 
         return (
-            <div ref={this.setStuff} data-id={id} data-order={order} className="chunck">
+            <div ref={(el) => this.cont = el} data-id={id} data-order={order} className="chunck">
                 <div className="chunckFrom">{from}</div>
                 <div className="chunckTo">{to}</div>
                 <div className="chunckName">{name}</div>

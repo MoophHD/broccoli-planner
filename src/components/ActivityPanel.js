@@ -57,7 +57,13 @@ class ActivityPanel extends Component {
     render() {
         return (
             <div style={{display:this.state.active ? "block" : "none"}} className="activityContainer"> 
-                {this.state.activityNames.map((nm) => {
+                {/* <div className="activityPinBtn btn btn-default">
+                    <i className="fa fa-refresh" aria-hidden="true"></i>
+                </div> */}
+                {this.state.activityNames
+                .slice()
+                .sort((a,b) => {return a > b ? -1 : 1})
+                .map((nm) => {
                     let durS = this.state.activities[nm];
                     return (
                     <li key={`_act_${nm}`}>
