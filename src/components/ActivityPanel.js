@@ -1,16 +1,21 @@
 import React, {Component} from 'react';
-import moment from 'moment'; //eslint-disable-line
 import {connect} from 'react-redux'
+
+import moment from 'moment'; //eslint-disable-line
+import addPulse from '../gist/addPulse'
 
 class ActivityPanel extends Component {
     constructor(props) {
         super(props);
         this.state = {
             active: false,
+            pinned: false,
             listenersAttached: false,
             activities:{},
             activityNames: []
         }
+
+        this.togglePin = this.togglePin.bind(this);
     }
 
     switchActive(e, bool) {
@@ -22,14 +27,12 @@ class ActivityPanel extends Component {
 
     switchListeners(on) {
         if (on && !this.state.listenersAttached) {
-            console.log("on");
             this.setState(() => {return{listenersAttached:true}}, () =>{
                 window.addEventListener("keydown", (e) => this.switchActive(e, true));
                 window.addEventListener("keyup", (e) => this.switchActive(e, false));
             })
 
         } else if (!on && this.state.listenersAttached){
-            console.log("off");
             this.setState(() => {return{listenersAttached:false}}, () =>{
                 window.removeEventListener("keydown", (e) => this.switchActive(e, true));
                 window.removeEventListener("keyup", (e) => this.switchActive(e, false));
@@ -39,7 +42,7 @@ class ActivityPanel extends Component {
 
     componentWillReceiveProps(nextProps) {
         const {byid, ids, isAreaActive} = nextProps;
-        isAreaActive ? this.switchListeners(false) :this.switchListeners(true)
+        isAreaActive && !this.state.pinned ? this.switchListeners(false) :this.switchListeners(true)
         let acts = {}, actNames=[], curr;
 
         let nm, dur;
@@ -54,15 +57,24 @@ class ActivityPanel extends Component {
 
         this.setState(() => {return {activities:acts, activityNames:actNames}});
     }
+
+    togglePin(e) {
+        let target = e.target;
+        if (target.tagName == "I") target=target.parentNode;
+        addPulse(target);
+        !this.state.pinned ? target.classList.add('active') : target.classList.remove('active')
+        this.setState(() => {return{pinned: !this.state.pinned}});
+    }
+
     render() {
         return (
-            <div style={{display:this.state.active ? "block" : "none"}} className="activityContainer"> 
-                {/* <div className="activityPinBtn btn btn-default">
-                    <i className="fa fa-refresh" aria-hidden="true"></i>
-                </div> */}
+            <div style={{display:(this.state.active || this.state.pinned) ? "block" : "none"}} className="activityContainer"> 
+                <div onClick={this.togglePin} className="activityPinBtn btn btn-default">
+                    <i className="fa fa-thumb-tack" aria-hidden="true"></i>
+                </div>
                 {this.state.activityNames
                 .slice()
-                .sort((a,b) => {return a > b ? -1 : 1})
+                .sort((a,b) => {return this.state.activities[a] > this.state.activities[b] ? -1 : 1})
                 .map((nm) => {
                     let durS = this.state.activities[nm];
                     return (

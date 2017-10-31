@@ -214,6 +214,21 @@ body {
   transform: translate(-50%, -50%);
 }
 
-/* .activityPinBtn {
+.activityPinBtn {
+  border-radius: 50%;
+  position: absolute;
+  right: 5px;
+  width: 25px;
+  height: 25px;
+}
 
-} */
+.activityPinBtn.active > i {
+  color: crimson;
+}
+
+.activityPinBtn > i {
+  position: absolute;
+  left: 55%;
+  top: 55%;
+  transform: translate(-50%, -50%);
+}

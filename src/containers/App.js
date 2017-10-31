@@ -12,6 +12,7 @@ import ActivityPanel from '../components/ActivityPanel'
 
 import Cookies from 'js-cookie'
 import moment from 'moment'
+import addPulse from '../gist/addPulse'
 
 class App extends Component {
   constructor(props) {
@@ -76,12 +77,8 @@ class App extends Component {
 
   clear(e) {
     let target = e.target;
-    if (target) {
-      if (target.tagName == "I") target=target.parentNode;
-      target.classList.add('pulse');
-      setTimeout(()=>target.classList.remove('pulse'), 500);
-    }
-
+    addPulse(target);
+    
     // document.querySelector('div.ctrInput').innerHTML = "";
     document.querySelector('textarea.ctrInput').value = "";
     Cookies.remove('ctrVal');
