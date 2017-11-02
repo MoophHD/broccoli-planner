@@ -43,6 +43,8 @@ class Chunck extends Component {
         let ids = nextProps.ids;
         if (nextProps.id == ids[0] || id == nextProps.activeId) { //if 1st or after active
             this.intervalId = setInterval(() => this.checkActive(), 1000)
+        } else {
+            if (this.intervalId) clearInterval(this.intervalId);
         }
     }
 
@@ -54,13 +56,21 @@ class Chunck extends Component {
         let nowDur = moment.duration({h:now.get("hours"), m:now.get("minutes"), s:now.get("seconds")}).asSeconds();
         let fromDur = moment.duration({h:from.get("hours"), m:from.get("minutes")}).asSeconds();
         let toDur = moment.duration({h:to.get("hours"), m:to.get("minutes")}).asSeconds();
-
+        // console.log(nowDur);
+        // console.log(fromDur);
         
         if (this.active) {
-            if (nowDur >= toDur || nowDur <= fromDur) {
+            if (nowDur <= fromDur) {
                 clearInterval(this.intervalId);
                 this.resetStyles();
                 this.props.actions.setActiveChunck(this.props.ids[this.props.ids.indexOf(this.props.id)+1]);
+                return;
+            } else if ( nowDur >= toDur) {
+                clearInterval(this.intervalId);
+                this.resetStyles();
+                let ids = this.props.ids;
+                let chunckId = this.props.id;
+                if (ids.indexOf(chunckId) > 0) this.props.actions.setActiveChunck(ids[ids.indexOf(chunckId)-1]);
                 return;
             }
         }
@@ -72,12 +82,12 @@ class Chunck extends Component {
 
     setActiveStyles() {
         this.active = true;
-        this.cont.classList.add("active");
+        setTimeout(() => this.cont.classList.add("active"), 0);
     }
 
     resetStyles() {
         this.active = false;
-        this.cont.classList.remove("active");
+        setTimeout(() => this.cont.classList.remove("active"), 0);
     }
 
     render() {

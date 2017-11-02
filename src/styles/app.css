@@ -228,7 +228,7 @@ body {
 
 .activityPinBtn > i {
   position: absolute;
-  left: 55%;
+  left: 52.5%;
   top: 55%;
   transform: translate(-50%, -50%);
 }

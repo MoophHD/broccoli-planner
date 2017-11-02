@@ -37,7 +37,7 @@ class InputFields extends Component {
     handleUnload() {
         if (Object.keys(this.props.from).length != 0 &&
             Object.keys(this.props.to).length != 0) {
-                Cookies.set('dt', {from:this.props.from, to:this.props.to})
+                Cookies.set('dt', {from:this.props.from, to:this.props.to}, {expires:1})
             }
     }
 

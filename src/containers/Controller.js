@@ -33,7 +33,7 @@ class Controller extends Component {
         }
         
         this.reg = {
-            chunck :/.+\ +\d{1,2}(\.\d{1,2})?($|\/\/)/gm,
+            chunck :/.+\ +\d{1,2}(\.\d{1,2})?($|\ ?\/{1,2})/gm,
             name : /.+?(?=(\ +\d))/g,
             duration : /\ (\d{1,2}(\.\d{1,2})?)/g,
             fullDur : /\ \d{1,2}\.\d{1,2}/g,
