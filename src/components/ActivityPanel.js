@@ -10,18 +10,22 @@ class ActivityPanel extends Component {
         this.state = {
             active: false,
             pinned: false,
+            drag: false,
             listenersAttached: false,
             activities:{},
             activityNames: []
         }
 
         this.togglePin = this.togglePin.bind(this);
+        this.startDrag = this.startDrag.bind(this);
+        this.endDrag = this.endDrag.bind(this);
+        this.drag = this.drag.bind(this);
     }
 
     switchActive(e, bool) {
         if (this.props.isAreaActive || e.keyCode != 32) return;
         if (this.state.active == bool) return;
-
+        
         this.setState(() => {return{active:bool}});
     }
 
@@ -58,18 +62,47 @@ class ActivityPanel extends Component {
         this.setState(() => {return {activities:acts, activityNames:actNames}});
     }
 
-    togglePin(e) {
-        let target = e.target;
-        if (target.tagName == "I") target=target.parentNode;
-        addPulse(target);
-        !this.state.pinned ? target.classList.add('active') : target.classList.remove('active')
+    togglePin() {
+        addPulse(this.pinDiv);
+
+        !this.state.pinned ? this.pinDiv.classList.add('active') : this.pinDiv.classList.remove('active')
         this.setState(() => {return{pinned: !this.state.pinned}});
+    }
+
+    startDrag(e) {
+        if (!this.state.pinned) this.togglePin();
+
+        this.setState(() => {return{drag:true}})
+        this.container.style.left = e.pageX + 'px';
+        this.container.style.top = e.pageY + this.container.offsetHeight/2 - 8 + 'px';
+        window.addEventListener("mousemove", (e) => this.drag(e));
+        window.addEventListener("mouseup", () => this.endDrag());
+
+        document.body.classList.add("unselectable");
+
+    }
+
+    endDrag() {
+
+        this.setState(() => {return{drag:false}})
+        window.removeEventListener("mousemove", (e) => this.drag(e));
+        window.removeEventListener("mouseup", () => this.endDrag());
+
+        document.body.classList.remove("unselectable");
+    }
+
+    drag(e) {
+        if (!this.state.drag) return; // safe
+
+        this.container.style.left = e.pageX + 'px';
+        this.container.style.top = e.pageY + this.container.offsetHeight/2 - 8 + 'px';
     }
 
     render() {
         return (
-            <div style={{display:(this.state.active || this.state.pinned) ? "block" : "none"}} className="activityContainer"> 
-                <div onClick={this.togglePin} className="activityPinBtn btn btn-default">
+            <div ref={(el) => this.container = el} style={{display:(this.state.active || this.state.pinned) ? "block" : "none"}} className="activityContainer"> 
+                <div onMouseUp={this.endDrag} onMouseDown={this.startDrag} onMouseMove={this.drag} className="actDragPanel"></div>
+                <div ref={(el) => this.pinDiv = el} onClick={this.togglePin} className="activityPinBtn btn btn-default">
                     <i className="fa fa-thumb-tack" aria-hidden="true"></i>
                 </div>
                 {this.state.activityNames

@@ -9,21 +9,3 @@ export default function StaticController(props) {
         })}
     </div>)
 }
-
-// function mapStateToProps(state) {
-//     return {
-//       byId: state.chuncksByID,
-//       ids: state.chuncksIDs,
-//       from: state.from,
-//       to: state.to,
-//       activeId: state.activeChunckId
-//     }
-//   }
-  
-//   function mapDispatchToProps(dispatch) {
-//     return {
-//         pageActions: bindActionCreators(pageActions, dispatch) 
-//     }
-//   }
-  
-//   export default connect(mapStateToProps, mapDispatchToProps)(Controller)

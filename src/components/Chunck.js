@@ -41,10 +41,10 @@ class Chunck extends Component {
 
 
         let ids = nextProps.ids;
+        if (this.intervalId) clearInterval(this.intervalId);
+        
         if (nextProps.id == ids[0] || id == nextProps.activeId) { //if 1st or after active
             this.intervalId = setInterval(() => this.checkActive(), 1000)
-        } else {
-            if (this.intervalId) clearInterval(this.intervalId);
         }
     }
 
@@ -56,8 +56,6 @@ class Chunck extends Component {
         let nowDur = moment.duration({h:now.get("hours"), m:now.get("minutes"), s:now.get("seconds")}).asSeconds();
         let fromDur = moment.duration({h:from.get("hours"), m:from.get("minutes")}).asSeconds();
         let toDur = moment.duration({h:to.get("hours"), m:to.get("minutes")}).asSeconds();
-        // console.log(nowDur);
-        // console.log(fromDur);
         
         if (this.active) {
             if (nowDur <= fromDur) {

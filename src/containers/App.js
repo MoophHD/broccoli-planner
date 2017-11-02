@@ -27,14 +27,7 @@ class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState(() => {return {ids:nextProps.ids, byid:nextProps.byid}} /*,
-    () => {
-      if (this.props.activeId != nextProps.activeId) {
-        let order = nextProps.byid[nextProps.activeId].order;
-        this.sortableContainer.scrollTop = 65*order - this.sortableContainer.offsetHeight/2;//65
-      }
-    }*/)
-
+    this.setState(() => {return {ids:nextProps.ids, byid:nextProps.byid}});
   } 
 
   sortableContainer(cont) {
