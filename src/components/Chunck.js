@@ -63,13 +63,15 @@ class Chunck extends Component {
             if (nowDur < fromDur) {
                 clearInterval(this.intervalId);
                 this.resetStyles();
+                let chunckId = this.props.id;
+                let ids = this.props.ids;
                 if (ids.indexOf(chunckId) > 0)  this.props.actions.setActiveChunck(this.props.ids[this.props.ids.indexOf(this.props.id)-1]);
                 return;
             } else if ( nowDur > toDur) {
                 clearInterval(this.intervalId);
                 this.resetStyles();
-                let ids = this.props.ids;
                 let chunckId = this.props.id;
+                let ids = this.props.ids;
                 this.props.actions.setActiveChunck(ids[ids.indexOf(chunckId)+1]);
                 return;
             }
