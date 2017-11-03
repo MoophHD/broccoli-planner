@@ -16,13 +16,15 @@ class Chunck extends Component {
             from: thisCh.from,
             to: thisCh.to,
             order: thisCh.order,
-            name: thisCh.name
+            name: thisCh.name,
+            active: false
         }
+
+        this.setContRef = this.setContRef.bind(this);
     }
 
     componentDidMount() {
         this.checkActive();
-        this.active = false;
     }
 
     componentWillReceiveProps(nextProps) {
@@ -57,35 +59,38 @@ class Chunck extends Component {
         let fromDur = moment.duration({h:from.get("hours"), m:from.get("minutes")}).asSeconds();
         let toDur = moment.duration({h:to.get("hours"), m:to.get("minutes")}).asSeconds();
         
-        if (this.active) {
-            if (nowDur <= fromDur) {
+        if (this.state.active) {
+            if (nowDur < fromDur) {
                 clearInterval(this.intervalId);
                 this.resetStyles();
-                this.props.actions.setActiveChunck(this.props.ids[this.props.ids.indexOf(this.props.id)+1]);
+                if (ids.indexOf(chunckId) > 0)  this.props.actions.setActiveChunck(this.props.ids[this.props.ids.indexOf(this.props.id)-1]);
                 return;
-            } else if ( nowDur >= toDur) {
+            } else if ( nowDur > toDur) {
                 clearInterval(this.intervalId);
                 this.resetStyles();
                 let ids = this.props.ids;
                 let chunckId = this.props.id;
-                if (ids.indexOf(chunckId) > 0) this.props.actions.setActiveChunck(ids[ids.indexOf(chunckId)-1]);
+                this.props.actions.setActiveChunck(ids[ids.indexOf(chunckId)+1]);
                 return;
             }
         }
         if ( nowDur > fromDur && nowDur < toDur) { // is active
-            if (!this.active) this.setActiveStyles();
+            if (!this.state.active) this.setActive();
             if (this.state.id != this.props.activeId) this.props.actions.setActiveChunck(this.props.id);
         }
     }
 
-    setActiveStyles() {
-        this.active = true;
-        setTimeout(() => this.cont.classList.add("active"), 0);
+    setActive() {
+        this.setState(() => {return{active:true}}, this.cont.classList.add("active"));
     }
 
     resetStyles() {
-        this.active = false;
-        setTimeout(() => this.cont.classList.remove("active"), 0);
+        this.setState(() => {return{active:false}}, this.cont.classList.remove("active"));
+    }
+
+    setContRef(el) {
+        if (el == null) return;
+        this.cont = el;
     }
 
     render() {
@@ -94,7 +99,7 @@ class Chunck extends Component {
         to = to.format('h:mm A');
 
         return (
-            <div ref={(el) => this.cont = el} data-id={id} data-order={order} className="chunck">
+            <div ref={this.setContRef} data-id={id} data-order={order} className="chunck">
                 <div className="chunckFrom">{from}</div>
                 <div className="chunckTo">{to}</div>
                 <div className="chunckName">{name}</div>
