@@ -72,7 +72,7 @@ class Chunck extends Component {
                 this.resetStyles();
                 let chunckId = this.props.id;
                 let ids = this.props.ids;
-                this.props.actions.setActiveChunck(ids[ids.indexOf(chunckId)+1]);
+                if (ids.indexOf(chunckId) != ids.length-1) this.props.actions.setActiveChunck(ids[ids.indexOf(chunckId)+1]);
                 return;
             }
         }

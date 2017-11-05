@@ -19,19 +19,43 @@ class App extends Component {
     super(props);
     this.sortableContainer = this.sortableContainer.bind(this);
     this.clear = this.clear.bind(this);
-
+    this.lastActive = props.activeId;
     this.state = {
       ids: props.ids,
       byid: props.byid
     }
   }
 
+  updateContainerScroll(id) {
+    let order = this.props.byid[id].order;
+    let cont = this.cont;
+    
+    let actH = cont.clientHeight;
+
+    let scrH = cont.scrollHeight;
+    let scrT = cont.scrollTop;
+    let scrB = scrH - cont.clientHeight - scrT;
+    
+    let chPerc = (1/this.props.ids.length)*order;
+    let actAreaPrc = actH/scrH;
+
+    if (chPerc >= scrT/scrH && chPerc <= (actAreaPrc+scrB/scrH)) return; //already in active area;
+    
+    this.cont.scrollTop = Math.max(0, chPerc*scrH - actH/2);
+  }
+
   componentWillReceiveProps(nextProps) {
     this.setState(() => {return {ids:nextProps.ids, byid:nextProps.byid}});
+    if (nextProps.activeId != this.lastActive) {
+      this.updateContainerScroll(nextProps.activeId);
+    }
+    this.lastActive = nextProps.activeId;
   } 
 
   sortableContainer(cont) {
     if (!cont) return;
+    this.cont = cont;
+
     var dragGhost = {};
     this._container = Sortable.create(cont, 
      {group: "chuncks",
@@ -90,7 +114,7 @@ class App extends Component {
     let chuncks = ids.map((id, ind) => {
       return (
         <Chunck 
-          key={`_chunck${ind}`}  //${Math.random()}
+          key={`_chunck${ind}`}
           id={id}
           />
       )
