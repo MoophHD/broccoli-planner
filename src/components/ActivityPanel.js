@@ -4,6 +4,8 @@ import {connect} from 'react-redux'
 import moment from 'moment'; //eslint-disable-line
 import addPulse from '../gist/addPulse'
 
+import Cookies from 'js-cookie'
+
 class ActivityPanel extends Component {
     constructor(props) {
         super(props);
@@ -13,13 +15,16 @@ class ActivityPanel extends Component {
             drag: false,
             listenersAttached: false,
             activities:{},
-            activityNames: []
+            activityNames: [],
+            value: ''
         }
 
-        this.togglePin = this.togglePin.bind(this);
+        this.switchPin = this.switchPin.bind(this);
         this.startDrag = this.startDrag.bind(this);
         this.endDrag = this.endDrag.bind(this);
         this.drag = this.drag.bind(this);
+        this.syncCookieValue = this.syncCookieValue.bind(this);
+        this.handleInputChange = this.handleInputChange.bind(this);
     }
 
     switchActive(e, bool) {
@@ -62,15 +67,19 @@ class ActivityPanel extends Component {
         this.setState(() => {return {activities:acts, activityNames:actNames}});
     }
 
-    togglePin() {
-        addPulse(this.pinDiv);
-
-        !this.state.pinned ? this.pinDiv.classList.add('active') : this.pinDiv.classList.remove('active')
-        this.setState(() => {return{pinned: !this.state.pinned}});
+    switchPin(bool) {
+        if (bool != undefined && bool == this.state.pinned) return;
+        if (bool == undefined) bool = !this.state.pinned;
+        console.log(bool)
+        if (this.pinDiv) {
+            addPulse(this.pinDiv);
+            !this.state.pinned ? this.pinDiv.classList.add('active') : this.pinDiv.classList.remove('active')
+        }
+        this.setState(() => {return{pinned:bool}});
     }
 
     startDrag(e) {
-        if (!this.state.pinned) this.togglePin();
+        if (!this.state.pinned) this.switchPin(true);
 
         this.setState(() => {return{drag:true}})
         this.container.style.left = e.pageX + 'px';
@@ -98,23 +107,36 @@ class ActivityPanel extends Component {
         this.container.style.top = e.pageY + this.container.offsetHeight/2 - 8 + 'px';
     }
 
+    handleInputChange(e) {
+        let val = e.target.value;
+        this.setState(() => {return{value:val}})
+        Cookies.set('PanelInputValue', val, {expires: 10});
+    }
+
+    syncCookieValue(target) {
+        if (target != null) this.setState(() => {return{value:Cookies.get('PanelInputValue')}})
+    }
+
     render() {
         return (
             <div ref={(el) => this.container = el} style={{display:(this.state.active || this.state.pinned) ? "block" : "none"}} className="activityContainer"> 
-                <div onMouseUp={this.endDrag} onMouseDown={this.startDrag} onMouseMove={this.drag} className="actDragPanel"></div>
-                <div ref={(el) => this.pinDiv = el} onClick={this.togglePin} className="activityPinBtn btn btn-default">
-                    <i className="fa fa-thumb-tack" aria-hidden="true"></i>
+                <div className="activities">
+                    <div onMouseUp={this.endDrag} onMouseDown={this.startDrag} onMouseMove={this.drag} className="actDragPanel"></div>
+                    <div ref={(el) => this.pinDiv = el} onClick={() => this.switchPin()} className="activityPinBtn btn btn-default">
+                        <i className="fa fa-thumb-tack" aria-hidden="true"></i>
+                    </div>
+                    {this.state.activityNames
+                    .slice()
+                    .sort((a,b) => {return this.state.activities[a] > this.state.activities[b] ? -1 : 1})
+                    .map((nm) => {
+                        let durS = this.state.activities[nm];
+                        return (
+                        <li key={`_act_${nm}`}>
+                            {nm} --- {`${~~(durS/3600)}h${~~((durS%3600)/60)}m`}
+                        </li>)
+                    })}
                 </div>
-                {this.state.activityNames
-                .slice()
-                .sort((a,b) => {return this.state.activities[a] > this.state.activities[b] ? -1 : 1})
-                .map((nm) => {
-                    let durS = this.state.activities[nm];
-                    return (
-                    <li key={`_act_${nm}`}>
-                        {nm} --- {`${~~(durS/3600)}h${~~((durS%3600)/60)}m`}
-                    </li>)
-                })}
+                <textarea onFocus={() => this.switchPin(true)} value={this.state.value} ref={this.syncCookieValue} onChange={this.handleInputChange} className="PanelTextarea" />
             </div>
         )
     }
