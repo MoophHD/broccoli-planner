@@ -11,12 +11,15 @@ class Chunck extends Component {
         let id = props.id;
         let thisCh = props.byid[id];
 
-        this.state = {
+        this.info = {
             id: id,
             from: thisCh.from,
             to: thisCh.to,
             order: thisCh.order,
-            name: thisCh.name,
+            name: thisCh.name
+        }
+
+        this.state = {
             active: false
         }
 
@@ -27,33 +30,33 @@ class Chunck extends Component {
         this.checkActive();
     }
 
-    componentWillReceiveProps(nextProps) {
-        this.checkActive();
-        let id = nextProps.id;
-        let thisCh = nextProps.byid[id];
+    componentDidUpdate() {
+        let id = this.props.id;
+        let thisCh = this.props.byid[id];
 
-        this.setState(() => { 
-        return {
+        this.info = {
             id: id,
             from: thisCh.from,
             to: thisCh.to,
             order: thisCh.order,
             name: thisCh.name
-        }})
-
-
-        let ids = nextProps.ids;
+        };
+    
+    
+        let ids = this.props.ids;
         if (this.intervalId) clearInterval(this.intervalId);
         
-        if (nextProps.id == ids[0] || id == nextProps.activeId) { //if 1st or after active
+        if (id == ids[0] || id == this.props.activeId) { //if 1st or after active
             this.intervalId = setInterval(() => this.checkActive(), 1000)
         }
+        this.checkActive();
+        
     }
 
     checkActive() {
         let now = moment();
-        let from = moment(this.state.from, "h:mm A");
-        let to = moment(this.state.to, "h:mm A");
+        let from = moment(this.info.from, "h:mm A");
+        let to = moment(this.info.to, "h:mm A");
 
         let nowDur = moment.duration({h:now.get("hours"), m:now.get("minutes"), s:now.get("seconds")}).asSeconds();
         let fromDur = moment.duration({h:from.get("hours"), m:from.get("minutes")}).asSeconds();
@@ -78,7 +81,7 @@ class Chunck extends Component {
         }
         if ( nowDur > fromDur && nowDur < toDur) { // is active
             if (!this.state.active) this.setActive();
-            if (this.state.id != this.props.activeId) this.props.actions.setActiveChunck(this.props.id);
+            if (this.info.id != this.props.activeId) this.props.actions.setActiveChunck(this.props.id);
         }
     }
 
@@ -96,7 +99,7 @@ class Chunck extends Component {
     }
 
     render() {
-        let {from, to, name, order, id} = this.state;
+        let {from, to, name, order, id} = this.info;
         from = from.format('h:mm A');
         to = to.format('h:mm A');
 
