@@ -1,11 +1,10 @@
-import React, {Component} from 'react'
+import React, {PureComponent} from 'react'
 import moment from 'moment'
 import * as actions from '../actions/chunckActions'
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
 
-
-class Chunck extends Component {
+class Chunck extends PureComponent {
     constructor(props) {
         super(props);
         let id = props.id;
@@ -35,7 +34,7 @@ class Chunck extends Component {
         let thisCh = this.props.byid[id];
         let dur = moment.duration(thisCh.to.diff(thisCh.from)).asHours();
 
-        if (dur != this.info.dur) this.forceUpdate();
+        if (dur != this.info.dur|| thisCh.order != this.info.order || thisCh.name != this.info.name) this.forceUpdate();
 
         this.info = {
             id: id,
