@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux' 
 import { connect } from 'react-redux'
@@ -11,7 +10,6 @@ import Sortable from 'sortablejs'
 import ActivityPanel from '../components/ActivityPanel'
 
 import Cookies from 'js-cookie'
-import moment from 'moment'
 import addPulse from '../gist/addPulse'
 
 class App extends Component {
@@ -56,7 +54,6 @@ class App extends Component {
     if (!cont) return;
     this.cont = cont;
 
-    var dragGhost = {};
     this._container = Sortable.create(cont, 
      {group: "chuncks",
       ghostClass:"ghostChunck",
@@ -68,21 +65,21 @@ class App extends Component {
         newId = evt.newIndex,
         reArrange = this._container.toArray(),
         oldSort = this._container.toArray();
-
+        let i;
         if (oldId < newId) {
-            for (var i = oldId; i < newId; i++)
+            for (i = oldId; i < newId; i++)
                 reArrange[i+1] = oldSort[i];
         } else {
-            for (var i = newId + 1; i <= oldId; i++)
+            for (i = newId + 1; i <= oldId; i++)
                 reArrange[i-1] = oldSort[i];
         }
     
         reArrange[oldId] = oldSort[newId];
         this._container.sort(reArrange);
 
-      }, 0)
+          }, 0)
         }.bind(this),
-    	onEnd: function (e) {
+      onEnd: function (e) {
         if (e.newIndex == e.oldIndex) return;
         let itemEl = document.querySelector(`.chunck[data-order="${e.oldIndex}"]`);
         let replacedInd = e.newIndex;
@@ -96,7 +93,6 @@ class App extends Component {
     let target = e.target;
     addPulse(target);
     
-    // document.querySelector('div.ctrInput').innerHTML = "";
     document.querySelector('textarea.ctrInput').value = "";
     Cookies.remove('ctrVal');
     Cookies.remove('dt', {path: '/'});
@@ -108,8 +104,7 @@ class App extends Component {
   }
 
   render() {
-    const {actions} = this.props;
-    const { byid, ids } = this.state;
+    const { ids } = this.state;
 
     let chuncks = ids.map((id, ind) => {
       return (

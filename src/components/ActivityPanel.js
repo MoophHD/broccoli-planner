@@ -14,8 +14,6 @@ class ActivityPanel extends Component {
             pinned: false,
             drag: false,
             listenersAttached: false,
-            activities:{},
-            activityNames: [],
             value: ''
         }
 
@@ -25,6 +23,10 @@ class ActivityPanel extends Component {
         this.drag = this.drag.bind(this);
         this.syncCookieValue = this.syncCookieValue.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
+    }
+
+    componentDidMount() {
+        this.switchListeners(true);
     }
 
     switchActive(e, bool) {
@@ -49,28 +51,9 @@ class ActivityPanel extends Component {
         }
     }
 
-    componentWillReceiveProps(nextProps) {
-        const {byid, ids, isAreaActive} = nextProps;
-        isAreaActive && !this.state.pinned ? this.switchListeners(false) :this.switchListeners(true)
-        let acts = {}, actNames=[], curr;
-
-        let nm, dur;
-        ids.forEach(function(id) {
-            curr = byid[id];
-            nm = curr.name.toString();
-
-            dur = byid[id].to.diff(byid[id].from, 'seconds');
-            if (actNames.indexOf(nm) == -1) actNames.push(nm);
-            acts[nm] = acts[nm] ? acts[nm] + dur : dur;
-        }); 
-
-        this.setState(() => {return {activities:acts, activityNames:actNames}});
-    }
-
     switchPin(bool) {
         if (bool != undefined && bool == this.state.pinned) return;
         if (bool == undefined) bool = !this.state.pinned;
-        console.log(bool)
         if (this.pinDiv) {
             addPulse(this.pinDiv);
             !this.state.pinned ? this.pinDiv.classList.add('active') : this.pinDiv.classList.remove('active')
@@ -82,6 +65,7 @@ class ActivityPanel extends Component {
         if (!this.state.pinned) this.switchPin(true);
 
         this.setState(() => {return{drag:true}})
+        console.log(e.pageX);
         this.container.style.left = e.pageX + 'px';
         this.container.style.top = e.pageY + this.container.offsetHeight/2 - 8 + 'px';
         window.addEventListener("mousemove", (e) => this.drag(e));
@@ -91,6 +75,13 @@ class ActivityPanel extends Component {
 
     }
 
+    drag(e) {
+        if (!this.state.drag) return; // safe
+
+        this.container.style.left = e.pageX + 'px';
+        this.container.style.top = e.pageY + this.container.offsetHeight/2 - 8 + 'px';
+    }
+
     endDrag() {
 
         this.setState(() => {return{drag:false}})
@@ -98,13 +89,6 @@ class ActivityPanel extends Component {
         window.removeEventListener("mouseup", () => this.endDrag());
 
         document.body.classList.remove("unselectable");
-    }
-
-    drag(e) {
-        if (!this.state.drag) return; // safe
-
-        this.container.style.left = e.pageX + 'px';
-        this.container.style.top = e.pageY + this.container.offsetHeight/2 - 8 + 'px';
     }
 
     handleInputChange(e) {
@@ -120,23 +104,13 @@ class ActivityPanel extends Component {
     render() {
         return (
             <div ref={(el) => this.container = el} style={{display:(this.state.active || this.state.pinned) ? "block" : "none"}} className="activityContainer"> 
-                <div className="activities">
+                <div className="control">
                     <div onMouseUp={this.endDrag} onMouseDown={this.startDrag} onMouseMove={this.drag} className="actDragPanel"></div>
                     <div ref={(el) => this.pinDiv = el} onClick={() => this.switchPin()} className="activityPinBtn btn btn-default">
                         <i className="fa fa-thumb-tack" aria-hidden="true"></i>
                     </div>
-                    {this.state.activityNames
-                    .slice()
-                    .sort((a,b) => {return this.state.activities[a] > this.state.activities[b] ? -1 : 1})
-                    .map((nm) => {
-                        let durS = this.state.activities[nm];
-                        return (
-                        <li key={`_act_${nm}`}>
-                            {nm} --- {`${~~(durS/3600)}h${~~((durS%3600)/60)}m`}
-                        </li>)
-                    })}
                 </div>
-                <textarea onFocus={() => this.switchPin(true)} value={this.state.value} ref={this.syncCookieValue} onChange={this.handleInputChange} className="PanelTextarea" />
+                <textarea onFocus={() => this.switchPin(true)} value={this.state.value} ref={this.syncCookieValue} onChange={this.handleInputChange} className="panelTextarea inputCore" />
             </div>
         )
     }

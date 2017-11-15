@@ -171,7 +171,7 @@ class Controller extends Component {
         return(
             <div className="controller">
                 <InputFields />
-                <textarea style={{display:this.props.isAreaActive ? "block" : "none"}} onBlur={this.toggleArea} onChange={this.handleInputChange} value={this.state.value} ref={(el) => this.input = el} className="ctrInput" />
+                <textarea style={{display:this.props.isAreaActive ? "block" : "none"}} onBlur={this.toggleArea} onChange={this.handleInputChange} value={this.state.value} ref={(el) => this.input = el} className="inputCore ctrInput" />
                 <StaticController isActive={!this.props.isAreaActive} handleClick={this.toggleArea} chuncks={this.state.value.split('\n')}/>
             </div>
         )
