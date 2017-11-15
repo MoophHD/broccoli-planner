@@ -33,13 +33,17 @@ class Chunck extends Component {
     componentDidUpdate() {
         let id = this.props.id;
         let thisCh = this.props.byid[id];
+        let dur = moment.duration(thisCh.to.diff(thisCh.from)).asHours();
+
+        if (dur != this.info.dur) this.forceUpdate();
 
         this.info = {
             id: id,
             from: thisCh.from,
             to: thisCh.to,
             order: thisCh.order,
-            name: thisCh.name
+            name: thisCh.name,
+            dur: dur
         };
     
     
@@ -51,6 +55,7 @@ class Chunck extends Component {
         }
         this.checkActive();
         
+
     }
 
     checkActive() {
