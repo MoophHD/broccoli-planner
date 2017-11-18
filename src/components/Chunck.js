@@ -29,24 +29,23 @@ class Chunck extends PureComponent {
         this.checkActive();
     }
 
-    componentDidUpdate() {
-        let id = this.props.id;
-        let thisCh = this.props.byid[id];
+    componentWillReceiveProps(nextProps) {
+        let id = nextProps.id;
+        let thisCh = nextProps.byid[id];
         let dur = moment.duration(thisCh.to.diff(thisCh.from)).asHours();
 
-        if (dur != this.info.dur|| thisCh.order != this.info.order || thisCh.name != this.info.name) this.forceUpdate();
-
-        this.info = {
+        let info = {
             id: id,
             from: thisCh.from,
             to: thisCh.to,
             order: thisCh.order,
             name: thisCh.name,
             dur: dur
-        };
-    
-    
-        let ids = this.props.ids;
+        }
+
+        if (JSON.stringify(info) != JSON.stringify(this.props.info)) this.updateInfo(info);
+        
+        let ids = nextProps.ids;
         if (this.intervalId) clearInterval(this.intervalId);
         
         if (id == ids[0] || id == this.props.activeId) { //if 1st or after active
@@ -54,7 +53,11 @@ class Chunck extends PureComponent {
         }
         this.checkActive();
         
+    }
 
+    updateInfo(obj) {
+        this.info = obj;
+        this.forceUpdate();
     }
 
     checkActive() {
