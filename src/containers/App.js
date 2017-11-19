@@ -25,6 +25,7 @@ class App extends Component {
   }
 
   updateContainerScroll(id) {
+    if (id == -1) return;
     let order = this.props.byid[id].order;
     let cont = this.cont;
     

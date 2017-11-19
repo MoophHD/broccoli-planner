@@ -9,6 +9,7 @@ class Chunck extends PureComponent {
         super(props);
         let id = props.id;
         let thisCh = props.byid[id];
+        this.intervalId = null;
 
         this.info = {
             id: id,
@@ -46,11 +47,14 @@ class Chunck extends PureComponent {
         if (JSON.stringify(info) != JSON.stringify(this.props.info)) this.updateInfo(info);
         
         let ids = nextProps.ids;
-        if (this.intervalId) clearInterval(this.intervalId);
-        
-        if (id == ids[0] || id == this.props.activeId) { //if 1st or after active
-            this.intervalId = setInterval(() => this.checkActive(), 1000)
+        if (this.intervalId != null) {
+            clearInterval(this.intervalId);
+            this.intervalId = null;
         }
+        if (id == nextProps.activeId || (nextProps.activeId == -1 && id == ids[0])) { //if 1st or active
+            this.intervalId = setInterval(() => { this.checkActive() }, 1000)
+        }
+
         this.checkActive();
         
     }
@@ -68,29 +72,33 @@ class Chunck extends PureComponent {
         let nowDur = moment.duration({h:now.get("hours"), m:now.get("minutes"), s:now.get("seconds")}).asSeconds();
         let fromDur = moment.duration({h:from.get("hours"), m:from.get("minutes")}).asSeconds();
         let toDur = moment.duration({h:to.get("hours"), m:to.get("minutes")}).asSeconds();
-        
+
         if (this.state.active) {
+            let ids = this.props.ids;
+            let chunckId = this.props.id;
             if (nowDur < fromDur) {
-                clearInterval(this.intervalId);
-                this.resetStyles();
-                let chunckId = this.props.id;
-                let ids = this.props.ids;
-                if (ids.indexOf(chunckId) > 0)  this.props.actions.setActiveChunck(this.props.ids[this.props.ids.indexOf(this.props.id)-1]);
+                if (ids.indexOf(chunckId) > 0) { // not first
+                    clearInterval(this.intervalId);
+                    this.resetStyles();
+                    this.props.actions.setActiveChunck(ids[ids.indexOf(chunckId)-1]);
+                }
                 return;
             } else if ( nowDur > toDur) {
-                clearInterval(this.intervalId);
-                this.resetStyles();
-                let chunckId = this.props.id;
-                let ids = this.props.ids;
-                if (ids.indexOf(chunckId) != ids.length-1) this.props.actions.setActiveChunck(ids[ids.indexOf(chunckId)+1]);
+                if (ids.indexOf(chunckId) != ids.length-1) { //not last 
+                    clearInterval(this.intervalId); 
+                    this.resetStyles();
+                    this.props.actions.setActiveChunck(ids[ids.indexOf(chunckId)+1]);
+                } 
                 return;
             }
         }
+
         if ( nowDur > fromDur && nowDur < toDur) { // is active
             if (!this.state.active) this.setActive();
             if (this.info.id != this.props.activeId) this.props.actions.setActiveChunck(this.props.id);
         }
     }
+
 
     setActive() {
         this.setState(() => {return{active:true}}, this.cont.classList.add("active"));
