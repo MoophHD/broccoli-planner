@@ -33,12 +33,13 @@ export default function index(state=initialState, action) {
 switch (action.type) {
     case REVISE_ACTIVE_CHUNCK:
         id = getActiveChunck(state);
-        return {...state, activeChunckId:id}
+        return {...state, activeChunckId: id}
     case TOGGLE_AREA_TYPE:
         return {...state, isAreaActive:!state.isAreaActive}
     case REBUILD_CHUNCKS:
         ({byId, ids} = rebuildChuncks(action.byId, action.ids, state.from));
-        return {...state, chuncksByID:byId, chuncksIDs:ids}
+        id = getActiveChunck({chuncksByID: byId, chuncksIDs: ids});
+        return {...state, chuncksByID:byId, chuncksIDs:ids, activeChunckId: id}
     case CHANGE_NAME:
         id = action.id;
         byId = {...state.chuncksByID};
@@ -83,14 +84,17 @@ switch (action.type) {
 function getActiveChunck({chuncksByID, chuncksIDs}) {
     let nowDt = moment();
     let nowSecs = moment.duration({h:nowDt.get("hours"), m:nowDt.get("minutes"), s:nowDt.get("seconds")}).asSeconds();
-    let chunck;
 
-    chuncksIDs.forEach((id) => {
+    let chunck, id;
+
+    for (let i = 0; i < chuncksIDs.length; i++) {
+        id = chuncksIDs[i];
         chunck = chuncksByID[id];
-        if (nowSecs > chunck._fromSecs && nowSecs < chunck._toSecs) {
+        
+        if (nowSecs >= chunck._fromSecs && nowSecs <= chunck._toSecs) {
             return id;
         }
-    })
+    }
 
     return -1;
 }

@@ -24,9 +24,7 @@ class App extends Component {
     }
   }
 
-  updateContainerScroll(id) {
-    if (id == -1) return;
-    let order = this.props.byid[id].order;
+  updateContainerScroll(order) {
     let cont = this.cont;
     
     let actH = cont.clientHeight;
@@ -45,8 +43,9 @@ class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     this.setState(() => {return {ids:nextProps.ids, byid:nextProps.byid}});
-    if (nextProps.activeId != this.lastActive) {
-      this.updateContainerScroll(nextProps.activeId);
+    if (nextProps.activeId != this.lastActive && nextProps.activeId != -1) {
+      let order = nextProps.byid[nextProps.activeId].order;
+      this.updateContainerScroll(order);
     }
     this.lastActive = nextProps.activeId;
   } 

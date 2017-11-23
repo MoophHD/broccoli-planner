@@ -53,16 +53,11 @@ class Chunck extends PureComponent {
     }
 
     checkActive() {
-        const {actions} = this.props;
+        const { actions, fromSecs, toSecs } = this.props;
         let now = moment();
-        let from = moment(this.props.from, "h:mm A");
-        let to = moment(this.props.to, "h:mm A");
+        let nowSecs = moment.duration({h:now.get("hours"), m:now.get("minutes"), s:now.get("seconds")}).asSeconds();
 
-        let nowDur = moment.duration({h:now.get("hours"), m:now.get("minutes"), s:now.get("seconds")}).asSeconds();
-        let fromDur = moment.duration({h:from.get("hours"), m:from.get("minutes")}).asSeconds();
-        let toDur = moment.duration({h:to.get("hours"), m:to.get("minutes")}).asSeconds();
-
-        if ( nowDur > fromDur && nowDur < toDur) { // is active
+        if ( nowSecs >= fromSecs && nowSecs <= toSecs) { // is active
             if (!this.state.active) {
                 this.setState(() => {return{active:true}})
                 actions.reviseActiveChunck();
@@ -98,7 +93,9 @@ function mapStateToProps(state, ownProps) {
       name: self.name,
       order: self.order,
       from: self.from,
-      to: self.to
+      to: self.to,
+      fromSecs: self._fromSecs,
+      toSecs: self._toSecs
     }
   }
   
