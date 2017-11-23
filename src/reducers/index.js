@@ -8,7 +8,7 @@ import{
 
 import {
   CHANGE_NAME,
-  SET_ACTIVE_CHUNCK
+  REVISE_ACTIVE_CHUNCK
 } from '../constants/chunck'
 
 import {
@@ -27,13 +27,15 @@ let initialState = {
   isAreaActive: false
 }
 
-let id, order, ids, byId
+let id, order, ids, byId;
+
 export default function index(state=initialState, action) {
 switch (action.type) {
+    case REVISE_ACTIVE_CHUNCK:
+        id = getActiveChunck(state);
+        return {...state, activeChunckId:id}
     case TOGGLE_AREA_TYPE:
         return {...state, isAreaActive:!state.isAreaActive}
-    case SET_ACTIVE_CHUNCK:
-      return {...state, activeChunckId: action.payload}
     case REBUILD_CHUNCKS:
         ({byId, ids} = rebuildChuncks(action.byId, action.ids, state.from));
         return {...state, chuncksByID:byId, chuncksIDs:ids}
@@ -78,11 +80,26 @@ switch (action.type) {
 }
 }
 
+function getActiveChunck({chuncksByID, chuncksIDs}) {
+    let nowDt = moment();
+    let nowSecs = moment.duration({h:nowDt.get("hours"), m:nowDt.get("minutes"), s:nowDt.get("seconds")}).asSeconds();
+    let chunck;
+
+    chuncksIDs.forEach((id) => {
+        chunck = chuncksByID[id];
+        if (nowSecs > chunck._fromSecs && nowSecs < chunck._toSecs) {
+            return id;
+        }
+    })
+
+    return -1;
+}
+
 function reorderIds(ids, byId) {
-ids.sort((a,b) => {
-    return byId[a].order > byId[b].order ? 1 : -1;
-})
-return ids;
+    ids.sort((a,b) => {
+        return byId[a].order > byId[b].order ? 1 : -1;
+    })
+    return ids;
 }
 
 function rebuildChuncks(byId={}, ids=[], from) {
@@ -91,9 +108,10 @@ function rebuildChuncks(byId={}, ids=[], from) {
 
     let anchorFrom = from;
 
-    ids.forEach(function(id) {
+    ids.forEach((id) => {
         let ch = byId[id];
         let dur;
+
 
         if (/\.\d{2}/.test(ch.duration)) {
             dur = 60*~~(ch.duration)+ch.duration%1*100;
@@ -114,6 +132,14 @@ function rebuildChuncks(byId={}, ids=[], from) {
         } else if (!ch.to.isSame(anchorTo)) {
             byId[id].to = anchorTo;
         }
+
+        let _from = byId[id].from;
+        let _to = byId[id].to;
+
+        //secs from start of a day
+        byId[id]._fromSecs =  moment.duration({h:_from.get("hours"), m:_from.get("minutes"), s:_from.get("seconds")}).asSeconds();
+        byId[id]._toSecs   =  moment.duration({h:_to.get("hours"), m:_to.get("minutes"), s:_to.get("seconds")}).asSeconds();
+        
         anchorFrom = anchorTo;
     }); 
 

@@ -1,6 +1,8 @@
-import {CHANGE_NAME,
-        CHANGE_DUR,
-        SET_ACTIVE_CHUNCK} from '../constants/chunck'
+import { 
+    CHANGE_NAME,
+    CHANGE_DUR,
+    REVISE_ACTIVE_CHUNCK 
+} from '../constants/chunck'
 
 export function changeName(id, name) {
     return {
@@ -18,9 +20,8 @@ export function changeDur(id, dur) {
     }
 }
 
-export function setActiveChunck(id) {
+export function reviseActiveChunck() {
     return {
-        type:SET_ACTIVE_CHUNCK,
-        payload: id
+        type: REVISE_ACTIVE_CHUNCK
     }
 }

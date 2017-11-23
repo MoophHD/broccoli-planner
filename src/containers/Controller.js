@@ -141,7 +141,7 @@ class Controller extends Component {
         }
 
         let target;
-        if (nextProps.activeId == undefined) { // && this.lastActiveId != -1
+        if (nextProps.activeId == -1 && this.lastActiveId != -1) { // && this.lastActiveId != -1
             this.lastActiveStaticChunck.classList.remove("active");
         } else if ( nextProps.activeId != this.lastActiveId) {
             if (!this.props.byId[nextProps.activeId]) return;
