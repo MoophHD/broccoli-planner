@@ -23,6 +23,7 @@ class ActivityPanel extends Component {
         this.drag = this.drag.bind(this);
         this.syncCookieValue = this.syncCookieValue.bind(this);
         this.handleInputChange = this.handleInputChange.bind(this);
+        this.handleTab = this.handleTab.bind(this);
     }
 
     componentDidMount() {
@@ -99,6 +100,15 @@ class ActivityPanel extends Component {
         this.setState(() => {return{focused: bool}})
     }
 
+    handleTab(e) {
+        if (e.key == "Tab") {
+            e.preventDefault();
+            let cursorPos = e.target.selectionStart;
+            let value = this.state.value.slice();
+            this.setState(() => {return{value: `${value.slice(0, cursorPos)}\t${value.slice(cursorPos, value.length)}`}});
+        }
+    }
+
     render() {
         return (
             <div ref={(el) => this.container = el} 
@@ -112,7 +122,12 @@ class ActivityPanel extends Component {
                         <i className="fa fa-thumb-tack" aria-hidden="true"></i>
                     </div>
                 </div>
-                <textarea onBlur={()=>this.togleFocus(false)} onFocus={() => {this.switchPin(true); this.togleFocus(true)}} value={this.state.value} ref={this.syncCookieValue} onChange={this.handleInputChange} className="panelTextarea inputCore" />
+                <textarea   onBlur={()=>this.togleFocus(false)} 
+                            onFocus={() => {this.switchPin(true); this.togleFocus(true)}} 
+                            onKeyDown={this.handleTab}
+                            value={this.state.value} ref={this.syncCookieValue} 
+                            onChange={this.handleInputChange} 
+                            className="panelTextarea inputCore" />
             </div>
         )
     }
