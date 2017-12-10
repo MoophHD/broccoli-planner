@@ -92,18 +92,10 @@ class InputFields extends Component {
 
     formatInputDt(val) {
         let splRg= /((\ \:\ )|\:|\-|\ )/g;
-        let now = moment();
         let dt = [],
             formDt,
             result;
 
-        let tmPeriod = (now.get("hours") < 12) ? "AM" : "PM";
-
-        if (/AM/i.test(val)) {
-            tmPeriod = "AM";
-        } else if (/PM/i.test(val)) {
-            tmPeriod = "PM";
-        }
 
         let tmPeriodMatch = val.match(/AM|PM/i) ? val.match(/AM|PM/i)[0] : null;
 
@@ -123,13 +115,23 @@ class InputFields extends Component {
                 val = val.split(/\ ?AM|\ ?PM/i).join("");
             }
 
-            if (/\./.test(val)) {
+            if (/(\.|,)/.test(val)) {
                 dt = this.normilizeDotDate(val);
                 } else {
                     dt[0] = val;
                     dt[1] = 0;
                 }
         }
+
+            let now = moment();
+            let tmPeriod = (now.get("hours") < 12) ? "AM" : "PM";
+
+            if (/AM/i.test(val)) {
+                tmPeriod = "AM";
+            } else if (/PM/i.test(val)) {
+                tmPeriod = "PM";
+            }
+
             result = moment(`${dt[0]}:${dt[1]} ${tmPeriod}`, "h:mm A").format('HH:mm').split(':');
             now.hour(result[0]);
             now.minute(result[1]);
@@ -147,7 +149,7 @@ class InputFields extends Component {
     }
 
     normilizeDotDate(dt) {
-        dt = dt.split('.');
+        dt = dt.split(/\.|,/);
         
         if (dt[1].length < 2) {
             dt[1] = (60 * (dt[1]/10)).toString();
