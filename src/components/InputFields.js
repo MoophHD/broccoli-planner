@@ -96,6 +96,16 @@ class InputFields extends Component {
             formDt,
             result;
 
+        let now = moment();
+        let tmPeriod = (now.get("hours") < 12) ? "AM" : "PM";
+
+        if (/AM/i.test(val)) {
+            tmPeriod = "AM";
+        } else if (/PM/i.test(val)) {
+            tmPeriod = "PM";
+        }
+
+
 
         let tmPeriodMatch = val.match(/AM|PM/i) ? val.match(/AM|PM/i)[0] : null;
 
@@ -123,14 +133,6 @@ class InputFields extends Component {
                 }
         }
 
-            let now = moment();
-            let tmPeriod = (now.get("hours") < 12) ? "AM" : "PM";
-
-            if (/AM/i.test(val)) {
-                tmPeriod = "AM";
-            } else if (/PM/i.test(val)) {
-                tmPeriod = "PM";
-            }
 
             result = moment(`${dt[0]}:${dt[1]} ${tmPeriod}`, "h:mm A").format('HH:mm').split(':');
             now.hour(result[0]);
